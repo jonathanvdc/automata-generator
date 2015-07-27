@@ -1,0 +1,30 @@
+using System;
+
+namespace Automata
+{
+    public static class GraphVizHandler : IHandler
+    {
+        public string Usage
+        {
+            const get return "input-path output-path";
+        }
+
+        public void Run(ConsoleArguments Args)
+        {
+            var ifs = Args.OpenArgumentFileRead(0, "input.dfa");
+            var automaton = AutomatonParser.ParseUnknownAutomaton(ifs);
+            ifs.Dispose();
+
+            var ofs = Args.OpenArgumentFileWrite(1, "output.dot");
+            if (automaton is DFAutomaton<string, string>)
+            {
+                GraphvizPrinter.PrintDFAutomaton(ofs, (DFAutomaton<string, string>)automaton);
+            }
+            else
+            {
+                GraphvizPrinter.PrintENFAutomaton(ofs, (ENFAutomaton<string, string>)automaton);
+            }
+            ofs.Dispose();
+        }
+    }
+}

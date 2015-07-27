@@ -100,6 +100,7 @@ namespace Automata
             handlers["minimize-dfa"] = MinimizeHandler;
             handlers["equivalent-dfa"] = EquivalenceHandler;
             handlers["metrics-dfa"] = MetricsHandler;
+            handlers["graphviz"] = GraphVizHandler;
         }
 
         private Dictionary<string, IHandler> handlers;

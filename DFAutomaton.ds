@@ -6,7 +6,7 @@ namespace Automata
     /// <summary>
     /// Defines a deterministic finite automaton.
     /// </summary>
-    public struct DFAutomaton<TState, TChar> : IAutomaton<TChar>
+    public class DFAutomaton<TState, TChar> : IAutomaton<TChar>
         where TState : object
         where TChar : object
     {

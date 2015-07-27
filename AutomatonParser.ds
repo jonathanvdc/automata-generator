@@ -81,7 +81,7 @@ namespace Automata
 
     public static class AutomatonParser
     {
-        private WordReader ReadWords(Stream Source)
+        public WordReader ReadWords(Stream Source)
         {
             var results = new List<string[]>();
             var sr = new StreamReader(Source);
@@ -126,8 +126,11 @@ namespace Automata
 
         public ENFAutomaton<string, string> ParseENFAutomaton(Stream Source)
         {
-            var reader = ReadWords(Source);
+            return ParseENFAutomaton(ReadWords(Source));
+        }
 
+        public ENFAutomaton<string, string> ParseENFAutomaton(WordReader reader)
+        {
             string initial;
             StateSet<string> finalStates;
             var trans = new TransitionMap<string, Optional<string>, StateSet<string>>();
@@ -154,7 +157,7 @@ namespace Automata
                         AutomatonGenerator.AddTransition<string, string>(trans, fromState, symbol, toState);
                     }
                 }
-                else if (!item.Equals("enfa"))
+                else if (!item.Equals("enfa") && !item.Equals("nfa"))
                 {
                     throw new Exception("Word '" + item + "' was not recognized while parsing an enfa.");
                 }
@@ -165,8 +168,11 @@ namespace Automata
 
         public DFAutomaton<string, string> ParseDFAutomaton(Stream Source)
         {
-            var reader = ReadWords(Source);
+            return ParseDFAutomaton(ReadWords(Source));
+        }
 
+        public DFAutomaton<string, string> ParseDFAutomaton(WordReader reader)
+        {
             string initial;
             StateSet<string> finalStates;
             var trans = new TransitionMap<string, string, string>();
@@ -200,6 +206,24 @@ namespace Automata
             }
 
             return new DFAutomaton<string, string>(initial, finalStates, trans);
+        }
+
+        public IAutomaton<string> ParseUnknownAutomaton(Stream Source)
+        {
+            return ParseUnknownAutomaton(ReadWords(Source));
+        }
+
+        public IAutomaton<string> ParseUnknownAutomaton(WordReader reader)
+        {
+            string firstWord = reader.ReadWord();
+            if (firstWord.Equals("dfa"))
+            {
+                return ParseDFAutomaton(reader);
+            }
+            else
+            {
+                return ParseENFAutomaton(reader);
+            }
         }
 
         private void WriteElements(TextWriter Writer, string Name, [string] Values)

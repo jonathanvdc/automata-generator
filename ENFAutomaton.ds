@@ -8,7 +8,7 @@ namespace Automata
     /// <summary>
     /// Defines a non-deterministic finite automaton with epsilon transitions.
     /// </summary>
-    public struct ENFAutomaton<TState, TChar> : IAutomaton<TChar>
+    public class ENFAutomaton<TState, TChar> : IAutomaton<TChar>
         where TState : object
         where TChar : object
     {
