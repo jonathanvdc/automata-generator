@@ -194,6 +194,35 @@ namespace Automata
         }
 
         /// <summary>
+        /// Gets the set of all reachable states in this automaton.
+        /// </summary>
+        public const StateSet<TState> ReachableStates()
+        {
+            var todo = new StateSet<TState>(StartState);
+            var reachable = new StateSet<TState>();
+            var alpha = GetAlphabet();
+            while (!todo.IsEmpty)
+            {
+                var q = todo.Pop();
+                reachable.Add(q);
+                foreach (var sym in alpha)
+                {
+                    foreach (var newState in PerformTransition(q, new Optional<TChar>(sym)))
+                        if (!reachable.Contains(newState))
+                    {
+                        todo.Add(newState);
+                    }
+                }
+                foreach (var newState in PerformTransition(q, default(Optional<TChar>)))
+                    if (!reachable.Contains(newState))
+                {
+                    todo.Add(newState);
+                }
+            }
+            return reachable;
+        }
+
+        /// <summary>
         /// Performs the modified subset construction on this automaton.
         /// </summary>
         public const DFAutomaton<StateSet<TState>, TChar> ToDFAutomaton()
