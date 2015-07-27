@@ -10,19 +10,13 @@ namespace Automata
         {
             const get return "input-path output-path";
         }
-
-        public string CalculateMetrics(DFAutomaton<string, string> Automaton)
-        {
-            return (string)AutomatonMetrics.ComputeMetrics<string, string>(Automaton);
-        }
-
         public void Run(ConsoleArguments Args)
         {
             var ifs = Args.OpenArgumentFileRead(0, "input.dfa");
             var dfa = AutomatonParser.ParseDFAutomaton(ifs);
             ifs.Dispose();
 
-            string metrics = CalculateMetrics(dfa);
+            string metrics = (string)AutomatonMetrics.ComputeMetrics<string, string>(dfa);
 
             Console.Write(metrics);
 
