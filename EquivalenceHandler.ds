@@ -1,0 +1,42 @@
+using System;
+using System.IO;
+
+namespace Automata
+{
+    public static class EquivalenceHandler : IHandler
+    {
+        public string Usage
+        {
+            const get return "first-input-path second-input-path output-path";
+        }
+
+        public void Run(ConsoleArguments Args)
+        {
+            var ifs1 = Args.OpenArgumentFileRead(0, "input1.dfa");
+            var dfa1 = AutomatonParser.ParseDFAutomaton(ifs1);
+            ifs1.Dispose();
+
+            var ifs2 = Args.OpenArgumentFileRead(1, "input2.dfa");
+            var dfa2 = AutomatonParser.ParseDFAutomaton(ifs2);
+            ifs2.Dispose();
+
+            bool areEquivalent = dfa1.EquivalentTo(dfa2);
+
+            if (areEquivalent)
+                Console.WriteLine("The given automata are equivalent.");
+            else
+                Console.WriteLine("The given automata are not equivalent.");
+
+            var ofs = Args.OpenArgumentFileWrite(2, "output.txt");
+            var writer = new StreamWriter(ofs);
+
+            if (areEquivalent)
+                writer.WriteLine("true");
+            else
+                writer.WriteLine("false");
+
+            writer.Dispose();
+            ofs.Dispose();
+        }
+    }
+}

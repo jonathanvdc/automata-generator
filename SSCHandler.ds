@@ -1,0 +1,28 @@
+using System;
+
+namespace Automata
+{
+    public static class SSCHandler : IHandler
+    {
+        public string Usage
+        {
+            const get return "input-path output-path";
+        }
+
+        public void Run(ConsoleArguments Args)
+        {
+            var ifs = Args.OpenArgumentFileRead(0, "input.enfa");
+            var enfa = AutomatonParser.ParseENFAutomaton(ifs);
+            ifs.Dispose();
+
+            // Perform ssc
+            var dfa        = enfa.ToDFAutomaton();
+            var indexedDfa = Interop.IndexAutomaton<StateSet<string>, string>(dfa);
+            var stringDfa  = Interop.ToStringAutomaton<int, string>(indexedDfa);
+
+            var ofs = Args.OpenArgumentFileWrite(1, "output.dfa");
+            AutomatonParser.PrintDFAutomaton(ofs, stringDfa);
+            ofs.Dispose();
+        }
+    }
+}

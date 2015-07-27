@@ -1,0 +1,263 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+using System.Text;
+
+namespace Automata
+{
+    /// <summary>
+    /// A class that reads a nested array of words word-by-word or line-by-line.
+    /// </summary>
+    public class WordReader
+    {
+        public const this(set string[][] Words);
+
+        /// <summary>
+        /// Gets the nested array of words to read.
+        /// </summary>
+        public string[][] Words { const get; private set; }
+        /// <summary>
+        /// Gets the current line index in the nested word array.
+        /// </summary>
+        public int LineIndex { const get; private set; }
+        /// <summary>
+        /// Gets the word index in the current line of the nested word array.
+        /// </summary>
+        public int WordIndex { const get; private set; }
+
+        /// <summary>
+        /// Gets the word that is currently being read.
+        /// </summary>
+        public string Current
+        {
+            const get return Words[LineIndex][WordIndex];
+        }
+
+        /// <summary>
+        /// Tells if the word reader's contents have been exhausted.
+        /// </summary>
+        public bool IsEmpty
+        {
+            const get return LineIndex >= Words.Length;
+        }
+
+        /// <summary>
+        /// Reads the remainder of the current line and advances to the next non-empty
+        /// line.
+        /// </summary>
+        public string[] ReadLine()
+        {
+            var results = new List<string>();
+            while (WordIndex < Words[LineIndex].Length)
+            {
+                results.Add(Current);
+                WordIndex++;
+            }
+            do
+            {
+                LineIndex++;
+            } while (LineIndex < Words.Length && Words[LineIndex].Length == 0);
+            WordIndex = 0;
+            return results.ToArray();
+        }
+
+        /// <summary>
+        /// Reads a single word, and advances to the next word, even if said
+        /// next word is in another line.
+        /// </summary>
+        public string ReadWord()
+        {
+            string cur = Current;
+            WordIndex++;
+            while (LineIndex < Words.Length && WordIndex >= Words[LineIndex].Length)
+            {
+                LineIndex++;
+                WordIndex = 0;
+            }
+            return cur;
+        }
+    }
+
+    public static class AutomatonParser
+    {
+        private WordReader ReadWords(Stream Source)
+        {
+            var results = new List<string[]>();
+            var sr = new StreamReader(Source);
+            try
+            {
+                while (sr.Peek() >= 0)
+                {
+                    string line = sr.ReadLine();
+                    results.Add(line.Split(null));
+                }
+            }
+            finally
+            {
+                sr.Dispose();
+            }
+            return new WordReader(results.ToArray());
+        }
+
+        public const Optional<string> ParseTransition(string Transition)
+        {
+            if (Transition.Equals("->"))
+            {
+                return default(Optional<string>);
+            }
+            else
+            {
+                return new Optional<string>(Transition);
+            }
+        }
+
+        public const string PrintTransition(Optional<string> Transition)
+        {
+            if (!Transition.HasValue)
+            {
+                return "->";
+            }
+            else
+            {
+                return Transition.Value;
+            }
+        }
+
+        public ENFAutomaton<string, string> ParseENFAutomaton(Stream Source)
+        {
+            var reader = ReadWords(Source);
+
+            string initial;
+            StateSet<string> finalStates;
+            var trans = new TransitionMap<string, Optional<string>, StateSet<string>>();
+
+            while (!reader.IsEmpty)
+            {
+                string item = reader.ReadWord();
+                if (item.Equals("start"))
+                {
+                    initial = reader.ReadWord();
+                }
+                else if (item.Equals("accepts"))
+                {
+                    finalStates = new StateSet<string>(reader.ReadLine());
+                }
+                else if (item.Equals("transitions"))
+                {
+                    while (!reader.IsEmpty)
+                    {
+                        var fromState = reader.ReadWord();
+                        var symbol = ParseTransition(reader.ReadWord());
+                        var toState = reader.ReadWord();
+
+                        AutomatonGenerator.AddTransition<string, string>(trans, fromState, symbol, toState);
+                    }
+                }
+                else if (!item.Equals("enfa"))
+                {
+                    throw new Exception("Word '" + item + "' was not recognized while parsing an enfa.");
+                }
+            }
+
+            return new ENFAutomaton<string, string>(initial, finalStates, trans);
+        }
+
+        public DFAutomaton<string, string> ParseDFAutomaton(Stream Source)
+        {
+            var reader = ReadWords(Source);
+
+            string initial;
+            StateSet<string> finalStates;
+            var trans = new TransitionMap<string, string, string>();
+
+            while (!reader.IsEmpty)
+            {
+                string item = reader.ReadWord();
+                if (item.Equals("start"))
+                {
+                    initial = reader.ReadWord();
+                }
+                else if (item.Equals("accepts"))
+                {
+                    finalStates = new StateSet<string>(reader.ReadLine());
+                }
+                else if (item.Equals("transitions"))
+                {
+                    while (!reader.IsEmpty)
+                    {
+                        var fromState = reader.ReadWord();
+                        var symbol = reader.ReadWord();
+                        var toState = reader.ReadWord();
+
+                        trans[fromState, symbol] = toState;
+                    }
+                }
+                else if (!item.Equals("dfa"))
+                {
+                    throw new Exception("Word '" + item + "' was not recognized while parsing a dfa.");
+                }
+            }
+
+            return new DFAutomaton<string, string>(initial, finalStates, trans);
+        }
+
+        private void WriteElements(TextWriter Writer, string Name, [string] Values)
+        {
+            Writer.Write(Name);
+            foreach (var item in Values)
+            {
+                Writer.Write(" ");
+                Writer.Write(item);
+            }
+            Writer.WriteLine();
+        }
+
+        public void PrintENFAutomaton(Stream Source, ENFAutomaton<string, string> Value)
+        {
+            var writer = new StreamWriter(Source);
+
+            writer.WriteLine("enfa");
+            writer.Write("start "); writer.WriteLine(Value.StartState);
+            WriteElements(writer, "accepts", Value.AcceptingStates);
+            writer.WriteLine("transitions");
+
+            foreach (var tuple in Value.TransitionFunction)
+            {
+                foreach (var targetState in tuple.Item3)
+                {
+                    writer.Write(tuple.Item1);
+                    writer.Write(" ");
+                    writer.Write(PrintTransition(tuple.Item2));
+                    writer.Write(" ");
+                    writer.Write(targetState);
+                    writer.WriteLine();
+                }
+            }
+
+            writer.Dispose();
+        }
+
+        public void PrintDFAutomaton(Stream Source, DFAutomaton<string, string> Value)
+        {
+            var writer = new StreamWriter(Source);
+
+            writer.WriteLine("dfa");
+            writer.Write("start "); writer.WriteLine(Value.StartState);
+            WriteElements(writer, "accepts", Value.AcceptingStates);
+            writer.WriteLine("transitions");
+
+            foreach (var tuple in Value.TransitionFunction)
+            {
+                writer.Write(tuple.Item1);
+                writer.Write(" ");
+                writer.Write(tuple.Item2);
+                writer.Write(" ");
+                writer.Write(tuple.Item3);
+                writer.WriteLine();
+            }
+
+            writer.Dispose();
+        }
+    }
+}

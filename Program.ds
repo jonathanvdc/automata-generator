@@ -1,0 +1,137 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+
+namespace Automata
+{
+    public class ConsoleArguments
+    {
+        public const this(set string[] Args);
+
+        public string[] Args { const get; private set; }
+
+        public const bool HasArgument(int Index)
+        {
+            return Index < Args.Length;
+        }
+
+        public const T GetArgument<T>(int Index, T Default, T(string) Parse)
+        {
+            if (Index < Args.Length)
+                return Parse(Args[Index]);
+            else
+                return Default;
+        }
+
+        public const Range<T> GetArgumentRange<T>(int Index, Range<T> Default, T(string) Parse)
+        {
+            if (Index < Args.Length)
+            {
+                string[] vals = Args[Index].Split(new char[] { '-' });
+                return new Range<T>(Parse(vals[0]), Parse(vals[1]));
+            }
+            else
+                return Default;
+        }
+
+        private const T Id<T>(T Value)
+        {
+            return Value;
+        }
+
+        public const string GetArgumentString(int Index, string Default)
+        {
+            return GetArgument<string>(Index, Default, Id<string>);
+        }
+
+        public const int GetArgumentInt(int Index, int Default)
+        {
+            return GetArgument<int>(Index, Default, int.Parse);
+        }
+
+        private const bool ParseBoolean(string Value)
+        {
+            return Value.ToLower().Equals("true");
+        }
+
+        public const bool GetArgumentBoolean(int Index, bool Default)
+        {
+            return GetArgument<bool>(Index, Default, ParseBoolean);
+        }
+
+        public const Range<int> GetArgumentIntRange(int Index, Range<int> Default)
+        {
+            return GetArgumentRange<int>(Index, Default, int.Parse);
+        }
+
+        public const Range<double> GetArgumentDoubleRange(int Index, Range<double> Default)
+        {
+            return GetArgumentRange<double>(Index, Default, double.Parse);
+        }
+
+        public Stream OpenArgumentFileRead(int Index, string DefaultPath)
+        {
+            string path = GetArgumentString(Index, DefaultPath);
+            return new FileStream(path, FileMode.Open, FileAccess.Read);
+        }
+
+        public Stream OpenArgumentFileWrite(int Index, string DefaultPath)
+        {
+            string path = GetArgumentString(Index, DefaultPath);
+            return new FileStream(path, FileMode.Create, FileAccess.Write);
+        }
+    }
+
+    public interface IHandler
+    {
+        string Usage { const get; }
+        void Run(ConsoleArguments Args);
+    }
+
+    public static class Program
+    {
+        static this()
+        {
+            handlers = new Dictionary<string, IHandler>();
+            handlers["generate-enfa"] = GenerateENFAHandler;
+            handlers["generate-metrics-enfa"] = GenerateMetricsENFAHandler;
+            handlers["ssc"] = SSCHandler;
+            handlers["minimize-dfa"] = MinimizeHandler;
+            handlers["equivalent-dfa"] = EquivalenceHandler;
+            handlers["metrics-dfa"] = MetricsHandler;
+        }
+
+        private Dictionary<string, IHandler> handlers;
+
+        private void PrintUsage()
+        {
+            Console.WriteLine("Usage:");
+            foreach (var item in handlers)
+            {
+                Console.Write(" * ");
+                Console.Write(item.Key);
+                Console.Write(" ");
+                Console.Write(item.Value.Usage);
+                Console.WriteLine();
+            }
+        }
+
+        public void Main(string[] Args)
+        {
+            if (Args.Length == 0 || !handlers.ContainsKey(Args[0]))
+            {
+                PrintUsage();
+                return;
+            }
+
+            string[] slicedArgs = new string[Args.Length - 1];
+            for (int i = 0; i < slicedArgs.Length; i++)
+            {
+                slicedArgs[i] = Args[i + 1];
+            }
+
+            handlers[Args[0]].Run(new ConsoleArguments(slicedArgs));
+        }
+    }
+}

@@ -1,0 +1,28 @@
+using System;
+
+namespace Automata
+{
+    public static class MinimizeHandler : IHandler
+    {
+        public string Usage
+        {
+            const get return "input-path output-path";
+        }
+
+        public void Run(ConsoleArguments Args)
+        {
+            var ifs = Args.OpenArgumentFileRead(0, "input.dfa");
+            var dfa = AutomatonParser.ParseDFAutomaton(ifs);
+            ifs.Dispose();
+
+            // Perform tfa
+            var optDfa     = dfa.Optimize();
+            var indexedDfa = Interop.IndexAutomaton<StateSet<string>, string>(optDfa);
+            var stringDfa  = Interop.ToStringAutomaton<int, string>(indexedDfa);
+
+            var ofs = Args.OpenArgumentFileWrite(1, "output.dfa");
+            AutomatonParser.PrintDFAutomaton(ofs, stringDfa);
+            ofs.Dispose();
+        }
+    }
+}

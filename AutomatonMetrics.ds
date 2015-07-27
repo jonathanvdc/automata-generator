@@ -1,0 +1,91 @@
+using System;
+using System.Text;
+
+namespace Automata
+{
+    /// <summary>
+    /// A set of metrics that pertains to a DFA.
+    /// </summary>
+    public class Metrics
+    {
+        public const this(set int StateCount, set int AcceptCount,
+                          set int AlphabetSize, set int TransitionCount,
+                          set double Reachability, set double BloatFactor);
+
+        public int StateCount { const get; private set; }
+        public int AcceptCount { const get; private set; }
+        public int AlphabetSize { const get; private set; }
+        public int TransitionCount { const get; private set; }
+        public double Reachability { const get; private set; }
+        public double BloatFactor { const get; private set; }
+
+        public override string ToString()
+        {
+            var result = new StringBuilder();
+            result.Append("State count: ")
+                  .Append(StateCount)
+                  .AppendLine();
+            result.Append("Number of accepting states: ")
+                  .Append(AcceptCount)
+                  .AppendLine();
+            result.Append("Alphabet size: ")
+                  .Append(AlphabetSize)
+                  .AppendLine();
+            result.Append("Transition count: ")
+                  .Append(TransitionCount)
+                  .AppendLine();
+            result.Append("Reachability: ")
+                  .Append(Reachability)
+                  .AppendLine();
+            result.Append("Bloat factor: ")
+                  .Append(BloatFactor)
+                  .AppendLine();
+
+            return (string)result;
+        }
+    }
+
+    /// <summary>
+    /// Contains convenience methods for computing certain automaton metrics.
+    /// </summary>
+    public static class AutomatonMetrics
+    {
+        public const Metrics ComputeMetrics<TState, TChar>(DFAutomaton<TState, TChar> Automaton)
+        {
+            return new Metrics(Automaton.GetStates().Count,
+                               Automaton.AcceptingStates.Count,
+                               Automaton.GetAlphabet().Count,
+                               Automaton.TransitionFunction.Count,
+                               AutomatonMetrics.ComputeReachability<TState, TChar>(Automaton),
+                               AutomatonMetrics.ComputeBloatFactor<TState, TChar>(Automaton));
+        }
+
+        /// <summary>
+        /// Computes a DFA's transition count divided by that of its minimized version.
+        /// Lower scores indicate relatively optimized automata. Higher scores
+        /// indicate poorly optimized automata.
+        /// </summary>
+        public const double ComputeBloatFactor<TState, TChar>(DFAutomaton<TState, TChar> Automaton)
+        {
+            int transCount      = Automaton.TransitionFunction.Count;
+            var minimizedDfa    = Automaton.Optimize();
+            int otherTransCount = minimizedDfa.TransitionFunction.Count;
+
+            return (double)transCount / (double)otherTransCount;
+        }
+
+        /// <summary>
+        /// Computes the quotient of the number of reachable states in a DFA
+        /// and the DFA's state count. A score of one means that every state is
+        /// reachable, any score below that means that there are unreachable states.
+        /// A score of zero means that no states are reachable.
+        /// </summary>
+        public const double ComputeReachability<TState, TChar>(DFAutomaton<TState, TChar> Automaton)
+        {
+            var states          = Automaton.GetStates();
+            var reachableStates = Automaton.ReachableStates();
+
+            return (double)reachableStates.Count / (double)states.Count;
+        }
+    }
+}

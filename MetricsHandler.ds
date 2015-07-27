@@ -1,0 +1,41 @@
+using System;
+using System.Text;
+using System.IO;
+
+namespace Automata
+{
+    public static class MetricsHandler : IHandler
+    {
+        public string Usage
+        {
+            const get return "input-path output-path";
+        }
+
+        public string CalculateMetrics(DFAutomaton<string, string> Automaton)
+        {
+            return (string)AutomatonMetrics.ComputeMetrics<string, string>(Automaton);
+        }
+
+        public void Run(ConsoleArguments Args)
+        {
+            var ifs = Args.OpenArgumentFileRead(0, "input.dfa");
+            var dfa = AutomatonParser.ParseDFAutomaton(ifs);
+            ifs.Dispose();
+
+            string metrics = CalculateMetrics(dfa);
+
+            Console.Write(metrics);
+
+            if (Args.HasArgument(1))
+            {
+                var ofs = Args.OpenArgumentFileWrite(1, "metrics.txt");
+                var writer = new StreamWriter(ofs);
+
+                writer.Write(metrics);
+
+                writer.Dispose();
+                ofs.Dispose();
+            }
+        }
+    }
+}

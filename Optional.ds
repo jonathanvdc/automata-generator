@@ -1,0 +1,68 @@
+namespace Automata
+{
+    /// <summary>
+    /// Defines a strongly-typed "optional" or "maybe" type.
+    /// </summary>
+    public struct Optional<T>
+        where T : object
+    {
+        /// <summary>
+        /// Creates a new optional instance from the given value.
+        /// </summary>
+        public const this(set T Value) { HasValue = true; }
+
+        /// <summary>
+        /// Gets a boolean value that indicates if this optional object has a value.
+        /// </summary>
+        public bool HasValue { const get; private set; }
+        /// <summary>
+        /// Gets the optional instance's value, if any.
+        /// </summary>
+        public T Value { const get; private set; }
+
+        /// <summary>
+        /// Converts this optional instance to another type using the given conversion
+        /// function.
+        /// </summary>
+        public const Optional<TNew> Convert<TNew>(TNew(T) Function)
+        {
+            if (HasValue)
+            {
+                return new Optional<TNew>(Function(Value));
+            }
+            else
+            {
+                return default(Optional<TNew>);
+            }
+        }
+
+        /// <summary>
+        /// Finds out if this optional object equals the given other optional
+        /// object.
+        /// </summary>
+        public const bool Equals(Optional<T> Other)
+        {
+            if (HasValue)
+            {
+                return Other.HasValue && Value == Other.Value;
+            }
+            else return !Other.HasValue;
+        }
+
+        /// <summary>
+        /// Finds out if this optional object equals the given other optional
+        /// object, if the latter is indeed an optional instance.
+        /// </summary>
+        public override const bool Equals(object Other)
+        {
+            if (Other is Optional<T>)
+            {
+                return Equals((Optional<T>)Other);
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+}

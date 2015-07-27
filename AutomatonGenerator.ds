@@ -1,0 +1,110 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Automata
+{
+    public static class AutomatonGenerator
+    {
+        public StateSet<char> GenerateAlphabet(Random rand, int Size)
+        {
+            var alpha = new StateSet<char>();
+            for (int i = 0; i < Size; i++)
+            {
+                char val;
+                do
+                {
+                    val = (char)((int)'a' + rand.Next(0, 26));
+                } while (alpha.Contains(val));
+                alpha.Add(val);
+            }
+            return alpha;
+        }
+
+        public StateSet<object> GenerateStates(int Count)
+        {
+            var results = new StateSet<object>();
+            for (int i = 0; i < Count; i++)
+            {
+                results.Add(new object());
+            }
+            return results;
+        }
+
+        public T GetRandomElement<T>([T] Values, Random rand)
+        {
+            int index = rand.Next(0, Enumerable.Count<T>(Values));
+            return Enumerable.ElementAt<T>(Values, index);
+        }
+
+        public StateSet<T> GetRandomSubset<T>([T] Values, Random rand, int Size)
+        {
+            var results = new StateSet<T>();
+            while (results.Count < Size)
+            {
+                results.Add(GetRandomElement<T>(Values, rand));
+            }
+            return results;
+        }
+
+        public ENFAutomaton<object, char> GenerateENFAutomaton(Random rand, bool AllowEpsilon,
+            int StateCount, int AlphabetSize, int AcceptCount, int TransitionCount)
+        {
+            var alpha = GenerateAlphabet(rand, AlphabetSize);
+            var states = GenerateStates(StateCount);
+
+            object start = GetRandomElement<object>(states, rand);
+            var accepting = GetRandomSubset<object>(states, rand, AcceptCount);
+
+            var trans = GenerateTransitions<object, char>(rand, AllowEpsilon, TransitionCount, states, alpha);
+
+            return new ENFAutomaton<object, char>(start, accepting, trans);
+        }
+
+        public ENFAutomaton<int, char> GenerateIndexedENFAutomaton(Random rand, bool AllowEpsilon,
+            int StateCount, int AlphabetSize, int AcceptCount, int TransitionCount)
+        {
+            var automaton = GenerateENFAutomaton(rand, AllowEpsilon, StateCount,
+                                                 AlphabetSize, AcceptCount,
+                                                 TransitionCount);
+            return Interop.IndexAutomaton<object, char>(automaton);
+        }
+
+        public static bool AddTransition<TState, TChar>(
+            TransitionMap<TState, Optional<TChar>, StateSet<TState>> Map,
+            TState FromState, Optional<TChar> Symbol, TState ToState)
+        {
+            if (!Map.Contains(FromState, Symbol))
+            {
+                Map[FromState, Symbol] = new StateSet<TState>();
+            }
+            return Map[FromState, Symbol].Add(ToState);
+        }
+
+        public static TransitionMap<TState, Optional<TChar>, StateSet<TState>> GenerateTransitions<TState, TChar>(
+            Random rand, bool AllowEpsilon, int TransitionCount, [TState] States, [TChar] Alpha)
+        {
+            var results = new TransitionMap<TState, Optional<TChar>, StateSet<TState>>();
+
+            for (int i = 0; i < TransitionCount; i++)
+            {
+                bool success;
+                do
+                {
+                    var fromState = GetRandomElement<TState>(States, rand);
+                    var toState = GetRandomElement<TState>(States, rand);
+
+                    Optional<TChar> transSym;
+                    if (AllowEpsilon && rand.Next(0, 3) == 0)
+                        transSym = default(Optional<TChar>);
+                    else
+                        transSym = new Optional<TChar>(GetRandomElement<TChar>(Alpha, rand));
+
+                    success = AddTransition<TState, TChar>(results, fromState, transSym, toState);
+                } while (!success);
+            }
+
+            return results;
+        }
+    }
+}

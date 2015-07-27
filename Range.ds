@@ -1,0 +1,36 @@
+using System;
+
+namespace Automata
+{
+    /// <summary>
+    /// Defines a generic range.
+    /// </summary>
+    public struct Range<T>
+    {
+        /// <summary>
+        /// Creates a new range from the given min and max values.
+        /// </summary>
+        public const this(set T Min, set T Max);
+
+        /// <summary>
+        /// Gets the range's minimal value.
+        /// </summary>
+        public T Min { const get; private set; }
+        /// <summary>
+        /// Gets the range's maximal value.
+        /// </summary>
+        public T Max { const get; private set; }
+    }
+
+    public static class RangeExtensions
+    {
+        public static const bool InRange(this Range<double> ran, double val)
+        {
+            return ran.Min <= val && ran.Max >= val;
+        }
+        public static const bool InRange(this Range<int> ran, int val)
+        {
+            return ran.Min <= val && ran.Max >= val;
+        }
+    }
+}
