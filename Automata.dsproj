@@ -30,6 +30,7 @@
     <Compile Include="Program.ds" />
     <Compile Include="GenerateENFAHandler.ds" />
     <Compile Include="GenerateMetricsENFAHandler.ds" />
+    <Compile Include="GraphvizPrinter.ds" />
     <Compile Include="SSCHandler.ds" />
     <Compile Include="MinimizeHandler.ds" />
     <Compile Include="EquivalenceHandler.ds" />

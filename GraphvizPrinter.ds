@@ -1,0 +1,94 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.IO;
+using System.Text;
+
+namespace Automata
+{
+    /// <summary>
+    /// Prints automata in GraphViz format.
+    /// </summary>
+    public static class GraphvizPrinter
+    {
+        private void PrintHeader(StreamWriter writer, string Type,
+                                 string StartState, [string] AcceptingStates)
+        {
+            // header
+            writer.WriteLine("digraph " + Type + " {");
+            writer.WriteLine("    rankdir = LR;");
+
+            // initial state arrow
+            writer.WriteLine("    __start [style = invis, shape = point];");
+            writer.Write("    __start -> \"");
+            writer.Write(StartState);
+            writer.Write("\" [ label = \"start\" ];");
+            writer.WriteLine();
+
+            // mark final states
+            writer.Write("    node [shape = doublecircle];")
+            foreach (var q in AcceptingStates)
+            {
+                writer.Write(" \"");
+                writer.Write(q);
+                writer.Write("\"");
+            }
+            writer.WriteLine();
+        }
+
+        public void PrintDFAutomaton(Stream Source, DFAutomaton<string, string> Value)
+        {
+            var writer = new StreamWriter(Source);
+
+            PrintHeader(writer, "dfa", Value.StartState, Value.AcceptingStates);
+
+            // draw transitions
+            writer.WriteLine("    node [shape = circle];");
+            foreach (var p in Value.TransitionFunction)
+            {
+                writer.Write("    \"");
+                writer.Write(p.Item1);
+                writer.Write("\" -> \"");
+                writer.Write(p.Item3);
+                writer.Write("\" [ label = \"");
+                writer.Write(p.Item2);
+                writer.WriteLine("\" ];");
+            }
+
+            writer.WriteLine("}");
+
+            writer.Dispose();
+        }
+
+        public void PrintENFAutomaton(Stream Source, ENFAutomaton<string, string> Value)
+        {
+            var writer = new StreamWriter(Source);
+
+            PrintHeader(writer, "enfa", Value.StartState, Value.AcceptingStates);
+
+            // draw transitions
+            writer.WriteLine("    node [shape = circle];");
+            foreach (var p in Value.TransitionFunction)
+            {
+                string sym;
+                if (p.Item2.HasValue) sym = p.Item2.Value;
+                else sym = "&epsilon;";
+
+                foreach (var to in p.Item3)
+                {
+                    writer.Write("    \"");
+                    writer.Write(p.Item1);
+                    writer.Write("\" -> \"");
+                    writer.Write(to);
+                    writer.Write("\" [ label = \"");
+                    writer.Write(sym);
+                    writer.WriteLine("\" ];");
+                }
+            }
+
+            writer.WriteLine("}");
+
+            writer.Dispose();
+        }
+    }
+}
