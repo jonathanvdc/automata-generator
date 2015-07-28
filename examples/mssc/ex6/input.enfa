@@ -1,0 +1,9 @@
+enfa
+start 0
+accepts 1
+transitions
+2 r 2
+0 r 1
+2 -> 0
+1 r 0
+1 r 2

@@ -1,0 +1,13 @@
+enfa
+start 0
+accepts 1
+transitions
+2 y 2
+2 y 1
+0 h 2
+0 h 0
+0 y 2
+2 h 0
+1 h 1
+1 h 2
+1 y 2

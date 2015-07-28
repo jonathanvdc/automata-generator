@@ -1,0 +1,10 @@
+dfa
+start 0
+accepts 0 1
+transitions
+0 k 2
+0 p 2
+2 k 1
+2 p 1
+1 k 1
+1 p 1

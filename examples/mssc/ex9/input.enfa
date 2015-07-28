@@ -1,0 +1,12 @@
+enfa
+start 0
+accepts 1
+transitions
+2 -> 0
+0 j 1
+1 z 1
+1 -> 3
+0 z 3
+3 j 2
+3 z 1
+2 j 2

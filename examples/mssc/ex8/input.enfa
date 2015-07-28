@@ -1,0 +1,14 @@
+enfa
+start 0
+accepts 1 0
+transitions
+2 s 3
+0 s 2
+2 q 1
+1 -> 3
+4 s 4
+4 -> 3
+3 q 4
+3 -> 4
+0 q 1
+1 s 3

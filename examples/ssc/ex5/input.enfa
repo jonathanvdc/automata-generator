@@ -1,0 +1,10 @@
+enfa
+start 0
+accepts 1
+transitions
+2 t 3
+2 t 0
+3 x 1
+3 x 2
+0 x 1
+0 x 2

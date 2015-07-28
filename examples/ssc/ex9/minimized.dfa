@@ -1,0 +1,16 @@
+dfa
+start 0
+accepts 1 2 3
+transitions
+0 c 4
+0 u 2
+4 c 1
+4 u 0
+1 c 0
+1 u 0
+2 c 5
+2 u 2
+5 c 3
+5 u 2
+3 c 2
+3 u 0
