@@ -102,6 +102,7 @@ namespace Automata
             handlers["equivalent-dfa"] = EquivalenceHandler;
             handlers["metrics-dfa"] = MetricsHandler;
             handlers["graphviz"] = GraphVizHandler;
+            handlers["complicate-dfa"] = ComplicateDFAHandler;
         }
 
         private Dictionary<string, IHandler> handlers;

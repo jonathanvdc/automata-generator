@@ -11,6 +11,10 @@ namespace Automata
         {
             this.transitions = new Dictionary<KeyValuePair<T1, T2>, T3>();
         }
+        public const this(TransitionMap<T1, T2, T3> Other)
+        {
+            this.transitions = new Dictionary<KeyValuePair<T1, T2>, T3>(Other.transitions);
+        }
 
         private Dictionary<KeyValuePair<T1, T2>, T3> transitions;
 

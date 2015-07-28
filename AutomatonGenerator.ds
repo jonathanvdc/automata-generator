@@ -96,7 +96,7 @@ namespace Automata
             return Interop.IndexAutomaton<object, char>(automaton);
         }
 
-        public static bool AddTransition<TState, TChar>(
+        public bool AddTransition<TState, TChar>(
             TransitionMap<TState, Optional<TChar>, StateSet<TState>> Map,
             TState FromState, Optional<TChar> Symbol, TState ToState)
         {
@@ -107,7 +107,7 @@ namespace Automata
             return Map[FromState, Symbol].Add(ToState);
         }
 
-        public static TransitionMap<TState, Optional<TChar>, StateSet<TState>> GenerateTransitions<TState, TChar>(
+        public TransitionMap<TState, Optional<TChar>, StateSet<TState>> GenerateTransitions<TState, TChar>(
             Random rand, bool AllowEpsilon, int TransitionCount, [TState] States, [TChar] Alpha)
         {
             var results = new TransitionMap<TState, Optional<TChar>, StateSet<TState>>();
@@ -131,6 +131,87 @@ namespace Automata
             }
 
             return results;
+        }
+
+        /// <summary>
+        /// Randomly complicates the given DFA. An upper bound on the number of states
+        /// that are to be added to the DFA is given as an integer argument.
+        /// No unreachable states will be added.
+        /// </summary>
+        public DFAutomaton<int, TChar> ComplicateRandomly<TChar>(DFAutomaton<int, TChar> Automaton, Random rand, int Amount)
+        {
+            var accept = new StateSet<int>(Automaton.AcceptingStates);
+            var trans = new TransitionMap<int, TChar, int>(Automaton.TransitionFunction);
+            var states = Automaton.GetStates();
+            var alpha = Automaton.GetAlphabet();
+
+            // Keep track of a counter that represents the numerically greatest state.
+            // We'll use this to create new states, as we know that any value
+            // which is greater still cannot possibly be a pre-existing state in the
+            // automaton. (This is true for reasonable integer values only.)
+            int stateCount = Enumerable.Max<int>(states) + 1;
+
+            // Select a state to complicate.
+            int targetState = GetRandomElement<int>(states, rand);
+
+            // Creates a set of new states.
+            var newStates = new StateSet<int>();
+            for (int i = 0; i < Amount; i++)
+            {
+                newStates.Add(stateCount);
+
+                if (accept.Contains(targetState))
+                {
+                    newStates.Add(stateCount); // Take care to replicate acceptance
+                                               // behavior for states.
+                }
+
+                stateCount++;
+            }
+
+            // Copy the chosen state (identified by `replIndex`)
+            foreach (var from in newStates)
+            foreach (var sym in alpha)
+            {
+                trans[from, sym] = trans[targetState, sym];
+            }
+
+            newStates.Add(targetState); // Add the original state to the set of new states.
+
+            // Now rewrite any transition that targets the original target state
+            // to target a random element of the state group.
+
+            // Find those transitions first.
+            var stateSetTransitions = new List<KeyValuePair<int, TChar>>();
+            foreach (var item in trans)
+                if (item.Item3 == targetState)
+            {
+                stateSetTransitions.Add(new KeyValuePair<int, TChar>(item.Item1, item.Item2));
+            }
+
+            // Rewrite them.
+            foreach (var item in stateSetTransitions)
+            {
+                trans[item.Key, item.Value] = GetRandomElement<int>(newStates, rand);
+            }
+
+            return new DFAutomaton<int, TChar>(Automaton.StartState, accept, trans).RemoveUnreachable();
+        }
+
+        /// <summary>
+        /// Randomly complicates the given DFA. An upper bound on the number of states
+        /// that are to be added to the DFA per iteration is given as an integer argument.
+        /// The process is repeated for the given amount of iterations.
+        /// No unreachable states will be added.
+        /// </summary>
+        public DFAutomaton<int, TChar> ComplicateRandomly<TChar>(DFAutomaton<int, TChar> Automaton, Random rand, int Amount, int Iterations)
+        {
+            var result = Automaton;
+            for (int i = 0; i < Iterations; i++)
+            {
+                result = ComplicateRandomly<TChar>(result, rand, Amount);
+            }
+            return result;
         }
     }
 }

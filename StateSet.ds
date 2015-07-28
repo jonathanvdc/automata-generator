@@ -62,6 +62,10 @@ namespace Automata
         {
             Set.UnionWith(Items);
         }
+        public void IntersectWith([T] Items)
+        {
+            Set.IntersectWith(Items);
+        }
 
         public bool Remove(T Value)
         {

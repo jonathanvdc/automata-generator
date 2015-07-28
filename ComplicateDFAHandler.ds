@@ -1,0 +1,32 @@
+using System;
+
+namespace Automata
+{
+    public static class ComplicateDFAHandler : IHandler
+    {
+        public string Usage
+        {
+            const get return "input-path output-path addition-amount iterations";
+        }
+
+        public void Run(ConsoleArguments Args)
+        {
+            int additionAmount = Args.GetArgumentInt(2, 1);
+            int iterationCount = Args.GetArgumentInt(3, 1);
+
+            var ifs = Args.OpenArgumentFileRead(0, "input.dfa");
+            var dfa = AutomatonParser.ParseDFAutomaton(ifs);
+            ifs.Dispose();
+
+            var indexedDfa = Interop.IndexAutomaton<string, string>(dfa);
+            var complicatedDfa = AutomatonGenerator.ComplicateRandomly<string>(indexedDfa,
+                new Random(), additionAmount, iterationCount);
+
+            var resultDfa = Interop.ToStringAutomaton<int, string>(complicatedDfa);
+
+            var ofs = Args.OpenArgumentFileWrite(1, "output.dfa");
+            AutomatonParser.PrintDFAutomaton(ofs, resultDfa);
+            ofs.Dispose();
+        }
+    }
+}

@@ -214,6 +214,25 @@ namespace Automata
         }
 
         /// <summary>
+        /// Creates a new automaton that is equivalent to this automaton, but
+        /// does not contain any unreachable states.
+        /// </summary>
+        public const DFAutomaton<TState, TChar> RemoveUnreachable()
+        {
+            var reachable = ReachableStates();
+            var filteredTable = new TransitionTable();
+            foreach (var item in TransitionFunction)
+            {
+                var sourceState = item.Item1;
+                if (reachable.Contains(sourceState))
+                    filteredTable[sourceState, item.Item2] = item.Item3;
+            }
+            
+            reachable.IntersectWith(AcceptingStates);
+            return new DFAutomaton<TState, TChar>(StartState, reachable, filteredTable);
+        }
+
+        /// <summary>
         /// Optimizes this automaton. First, all reachable states are detected.
         /// Then, the TFA is applied to these reachable states, and all
         /// equivalent states are merged. A new automaton is constructed based on
