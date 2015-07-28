@@ -1,0 +1,14 @@
+dfa
+start 0
+accepts 1
+transitions
+1 e 2
+1 a 3
+0 e 1
+0 a 4
+4 e 4
+4 a 4
+2 e 3
+2 a 4
+3 e 2
+3 a 2

@@ -1,0 +1,8 @@
+dfa
+start 0
+accepts 1
+transitions
+0 c 0
+0 g 1
+1 c 0
+1 g 0
