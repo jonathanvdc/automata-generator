@@ -6,7 +6,7 @@ namespace Automata
     {
         public string Usage
         {
-            const get return "output-path state-count alphabet-size accept-count all-reachable bloat-range";
+            const get return "output-path state-count alphabet-size accept-count all-reachable bloat-range accept-start";
         }
 
         public void Run(ConsoleArguments Args)
@@ -16,11 +16,12 @@ namespace Automata
             int acceptCount   = Args.GetArgumentInt(3, 1);
             bool allReachable = Args.GetArgumentBoolean(4, true);
             var bloatRange    = Args.GetArgumentDoubleRange(5, new Range<double>(1.0, double.PositiveInfinity));
+            bool acceptStart  = Args.GetArgumentBoolean(6, false);
 
             var rand = new Random();
 
             DFAutomaton<int, char> indexedAutom;
-            bool reachMismatch, bloatMismatch;
+            bool reachMismatch, bloatMismatch, startMismatch;
             do
             {
                 var genAutom = AutomatonGenerator.GenerateDFAutomaton(
@@ -29,7 +30,8 @@ namespace Automata
 
                 reachMismatch = allReachable && indexedAutom.GetStates().Count != indexedAutom.ReachableStates().Count;
                 bloatMismatch = Args.HasArgument(5) && !bloatRange.InRange(AutomatonMetrics.ComputeBloatFactor<int, char>(indexedAutom));
-            } while (reachMismatch || bloatMismatch);
+                startMismatch = !acceptStart && indexedAutom.AcceptingStates.Contains(indexedAutom.StartState);
+            } while (reachMismatch || bloatMismatch || startMismatch);
 
             var stringAutom = Interop.ToStringAutomaton<int, char>(indexedAutom);
 
