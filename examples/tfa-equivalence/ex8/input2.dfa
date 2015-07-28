@@ -1,0 +1,10 @@
+dfa
+start 0
+accepts 2 1
+transitions
+0 j 0
+0 m 2
+1 j 1
+1 m 0
+2 j 1
+2 m 0
