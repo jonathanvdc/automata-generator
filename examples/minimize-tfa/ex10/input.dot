@@ -1,0 +1,25 @@
+digraph dfa {
+    rankdir = LR;
+    __start [style = invis, shape = point];
+    __start -> "0" [ label = "start" ];
+    node [shape = doublecircle]; "1"
+    node [shape = circle];
+    "2" -> "3" [ label = "y" ];
+    "2" -> "1" [ label = "u" ];
+    "2" -> "2" [ label = "k" ];
+    "1" -> "1" [ label = "y" ];
+    "1" -> "0" [ label = "u" ];
+    "1" -> "3" [ label = "k" ];
+    "4" -> "3" [ label = "y" ];
+    "4" -> "5" [ label = "u" ];
+    "4" -> "5" [ label = "k" ];
+    "0" -> "3" [ label = "y" ];
+    "0" -> "1" [ label = "u" ];
+    "0" -> "2" [ label = "k" ];
+    "3" -> "1" [ label = "y" ];
+    "3" -> "1" [ label = "u" ];
+    "3" -> "4" [ label = "k" ];
+    "5" -> "3" [ label = "y" ];
+    "5" -> "5" [ label = "u" ];
+    "5" -> "5" [ label = "k" ];
+}

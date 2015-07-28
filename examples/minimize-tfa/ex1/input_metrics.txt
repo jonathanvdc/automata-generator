@@ -1,0 +1,6 @@
+State count: 4
+Number of accepting states: 1
+Alphabet size: 2
+Transition count: 8
+Reachability: 1
+Bloat factor: 2
