@@ -46,7 +46,7 @@ namespace Automata
         public Metrics CreateENFA(Stream ENFAOutput, Stream DFAOutput)
         {
             ENFAutomaton<int, char> genAutom;
-            DFAutomaton<int, char> indexedDfa;
+            DFAutomaton<string, string> stringDfa;
             Metrics metrics;
             do
             {
@@ -56,16 +56,17 @@ namespace Automata
                                 rand, hasEpsilon, stateCount,
                                 alphaSize, acceptCount, transCount);
                 var genDfa = genAutom.ToDFAutomaton();
-                indexedDfa = Interop.IndexAutomaton<StateSet<int>, char>(genDfa);
-                metrics    = AutomatonMetrics.ComputeMetrics<int, char>(indexedDfa);
-            } while (genAutom.ReachableStates().Count != genAutom.GetStates().Count ||
+                stringDfa = Interop.NameSetAutomaton<int, char>(genDfa);
+                metrics    = AutomatonMetrics.ComputeMetrics<string, string>(stringDfa);
+            } while (!genAutom.HasMultiTransitions ||
+                     genAutom.HasAppendageStates ||
                      !bloatRange.InRange(metrics.BloatFactor) ||
                      !stateRange.InRange(metrics.StateCount) ||
                      !transRange.InRange(metrics.TransitionCount) ||
-                     !acceptRange.InRange(metrics.AcceptCount));
+                     !acceptRange.InRange(metrics.AcceptCount) ||
+                     genAutom.ReachableStates().Count != genAutom.GetStates().Count);
 
             var stringAutom = Interop.ToStringAutomaton<int, char>(genAutom);
-            var stringDfa   = Interop.ToStringAutomaton<int, char>(indexedDfa);
 
             AutomatonParser.PrintENFAutomaton(ENFAOutput, stringAutom);
             AutomatonParser.PrintDFAutomaton(DFAOutput, stringDfa);

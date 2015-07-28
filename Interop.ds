@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Automata
 {
@@ -162,6 +164,33 @@ namespace Automata
             where TChar : object
         {
             return Automaton.Rename<string, string>(ConvertToString<TState>, ConvertToString<TChar>);
+        }
+
+        private const string NameSet<T>(StateSet<T> Values)
+            where T : object
+        {
+            var sortedSet = new SortedSet<T>(Values);
+            var results = new StringBuilder();
+            results.Append("{");
+            if (sortedSet.Count > 0)
+            {
+                results.Append(Enumerable.First<T>(sortedSet).ToString());
+                foreach (var item in Enumerable.Skip<T>(sortedSet, 1))
+                {
+                    results.Append(",");
+                    results.Append(item.ToString());
+                }
+            }
+            results.Append("}");
+            return (string)results;
+        }
+
+        public const DFAutomaton<string, string> NameSetAutomaton<TState, TChar>(
+            DFAutomaton<StateSet<TState>, TChar> Automaton)
+            where TState : object
+            where TChar : object
+        {
+            return Automaton.Rename<string, string>(NameSet<TState>, ConvertToString<TChar>);
         }
 
         /// <summary>

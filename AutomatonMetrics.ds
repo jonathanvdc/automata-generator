@@ -61,17 +61,17 @@ namespace Automata
         }
 
         /// <summary>
-        /// Computes a DFA's transition count divided by that of its minimized version.
+        /// Computes a DFA's state count divided by that of its minimized version.
         /// Lower scores indicate relatively optimized automata. Higher scores
         /// indicate poorly optimized automata.
         /// </summary>
         public const double ComputeBloatFactor<TState, TChar>(DFAutomaton<TState, TChar> Automaton)
         {
-            int transCount      = Automaton.TransitionFunction.Count;
-            var minimizedDfa    = Automaton.Optimize();
-            int otherTransCount = minimizedDfa.TransitionFunction.Count;
+            double stateCount      = Automaton.GetStates().Count;
+            var minimizedDfa       = Automaton.Optimize();
+            double otherStateCount = minimizedDfa.GetStates().Count;
 
-            return (double)transCount / (double)otherTransCount;
+            return stateCount / otherStateCount;
         }
 
         /// <summary>

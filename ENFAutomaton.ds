@@ -36,6 +36,59 @@ namespace Automata
         public TransitionTable TransitionFunction { const get; private set; }
 
         /// <summary>
+        /// Determines the outward transition count of the epsilon-closure of
+        /// any node satisfies the given predicate.
+        /// </summary>
+        private bool AnyOutTransitionCount(bool(int) Predicate)
+        {
+            var alpha = GetAlphabet();
+            foreach (var state in GetStates())
+            {
+                var closure = Eclose(state);
+                foreach (var item in alpha)
+                    if (Predicate(PerformAllTransitions(closure, new Optional<TChar>(item)).Count))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Checks whether a value is greater than one, for use as a delegate.
+        /// </summary>
+        private const bool isGreaterThanOne(int Value)
+        {
+            return Value > 1;
+        }
+
+        /// <summary>
+        /// Checks whether an integer equals zero, for use as a delegate.
+        /// </summary>
+        private const bool isZero(int Value)
+        {
+            return Value == 0;
+        }
+
+        /// <summary>
+        /// Finds out of this automaton has transitions that target more than
+        /// one state.
+        /// </summary>
+        public bool HasMultiTransitions
+        {
+            const get return AnyOutTransitionCount(isGreaterThanOne);
+        }
+
+        /// <summary>
+        /// Finds out if this automaton has "appendage" states: states that do not
+        /// have any outward transitions.
+        /// </summary>
+        public bool HasAppendageStates
+        {
+            const get return AnyOutTransitionCount(isZero);
+        }
+
+        /// <summary>
         /// Creates a new e-NFA by renaming this e-NFA's states and symbols.
         /// </summary>
         public const ENFAutomaton<TNState, TNChar> Rename<TNState, TNChar>(TNState(TState) StateRenamer, TNChar(TChar) CharRenamer)
@@ -78,6 +131,7 @@ namespace Automata
                 return new StateSet<TState>();
             }
         }
+
         /// <summary>
         /// Returns the set of all states reachable by performing a single transition
         /// with the given character for each state in the given state set.

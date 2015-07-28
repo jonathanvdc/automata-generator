@@ -17,8 +17,7 @@ namespace Automata
 
             // Perform ssc
             var dfa        = enfa.ToDFAutomaton();
-            var indexedDfa = Interop.IndexAutomaton<StateSet<string>, string>(dfa);
-            var stringDfa  = Interop.ToStringAutomaton<int, string>(indexedDfa);
+            var stringDfa = Interop.NameSetAutomaton<string, string>(dfa);
 
             var ofs = Args.OpenArgumentFileWrite(1, "output.dfa");
             AutomatonParser.PrintDFAutomaton(ofs, stringDfa);
