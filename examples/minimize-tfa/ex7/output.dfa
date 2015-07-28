@@ -1,7 +1,0 @@
-dfa
-start 0
-accepts 1
-transitions
-0 y 1
-1 y 2
-2 y 0
