@@ -95,6 +95,7 @@ namespace Automata
         {
             handlers = new Dictionary<string, IHandler>();
             handlers["generate-enfa"] = GenerateENFAHandler;
+            handlers["generate-dfa"] = GenerateDFAHandler;
             handlers["generate-metrics-enfa"] = GenerateMetricsENFAHandler;
             handlers["ssc"] = SSCHandler;
             handlers["minimize-dfa"] = MinimizeHandler;

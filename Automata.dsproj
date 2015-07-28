@@ -28,6 +28,7 @@
     <Compile Include="TransitionMap.ds" />
     <Compile Include="Interop.ds" />
     <Compile Include="Program.ds" />
+    <Compile Include="GenerateDFAHandler.ds" />
     <Compile Include="GenerateENFAHandler.ds" />
     <Compile Include="GenerateMetricsENFAHandler.ds" />
     <Compile Include="GraphvizHandler.ds" />

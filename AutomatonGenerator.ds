@@ -47,6 +47,32 @@ namespace Automata
             return results;
         }
 
+        public DFAutomaton<object, char> GenerateDFAutomaton(Random rand,
+            int StateCount, int AlphabetSize, int AcceptCount)
+        {
+            var alpha = GenerateAlphabet(rand, AlphabetSize);
+            var states = GenerateStates(StateCount);
+
+            return GenerateDFAutomaton(rand, states, alpha, AcceptCount);
+        }
+
+        public DFAutomaton<object, char> GenerateDFAutomaton(Random rand,
+            [object] States, [char] Alphabet, int AcceptCount)
+        {
+            object start = GetRandomElement<object>(States, rand);
+            var accepting = GetRandomSubset<object>(States, rand, AcceptCount);
+
+            var trans = new TransitionMap<object, char, object>();
+
+            foreach (var from in States)
+            foreach (var sym in Alphabet)
+            {
+                trans[from, sym] = GetRandomElement<object>(States, rand);
+            }
+
+            return new DFAutomaton<object, char>(start, accepting, trans);
+        }
+
         public ENFAutomaton<object, char> GenerateENFAutomaton(Random rand, bool AllowEpsilon,
             int StateCount, int AlphabetSize, int AcceptCount, int TransitionCount)
         {

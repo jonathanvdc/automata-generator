@@ -1,0 +1,41 @@
+using System;
+
+namespace Automata
+{
+    public static class GenerateDFAHandler : IHandler
+    {
+        public string Usage
+        {
+            const get return "output-path state-count alphabet-size accept-count all-reachable bloat-range";
+        }
+
+        public void Run(ConsoleArguments Args)
+        {
+            int stateCount    = Args.GetArgumentInt(1, 5);
+            int alphaSize     = Args.GetArgumentInt(2, 3);
+            int acceptCount   = Args.GetArgumentInt(3, 1);
+            bool allReachable = Args.GetArgumentBoolean(4, true);
+            var bloatRange    = Args.GetArgumentDoubleRange(5, new Range<double>(1.0, double.PositiveInfinity));
+
+            var rand = new Random();
+
+            DFAutomaton<int, char> indexedAutom;
+            bool reachMismatch, bloatMismatch;
+            do
+            {
+                var genAutom = AutomatonGenerator.GenerateDFAutomaton(
+                                    rand, stateCount, alphaSize, acceptCount);
+                indexedAutom = Interop.IndexAutomaton<object, char>(genAutom);
+
+                reachMismatch = allReachable && indexedAutom.GetStates().Count != indexedAutom.ReachableStates().Count;
+                bloatMismatch = Args.HasArgument(5) && !bloatRange.InRange(AutomatonMetrics.ComputeBloatFactor<int, char>(indexedAutom));
+            } while (reachMismatch || bloatMismatch);
+
+            var stringAutom = Interop.ToStringAutomaton<int, char>(indexedAutom);
+
+            var fs = Args.OpenArgumentFileWrite(0, "output.dfa");
+            AutomatonParser.PrintDFAutomaton(fs, stringAutom);
+            fs.Dispose();
+        }
+    }
+}
