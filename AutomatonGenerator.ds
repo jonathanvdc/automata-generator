@@ -162,14 +162,14 @@ namespace Automata
 
                 if (accept.Contains(targetState))
                 {
-                    newStates.Add(stateCount); // Take care to replicate acceptance
+                    accept.Add(stateCount); // Take care to replicate acceptance
                                                // behavior for states.
                 }
 
                 stateCount++;
             }
 
-            // Copy the chosen state (identified by `replIndex`)
+            // Copy the chosen state's (`targetState`) transitions.
             foreach (var from in newStates)
             foreach (var sym in alpha)
             {
