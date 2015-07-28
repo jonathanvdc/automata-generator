@@ -1,7 +1,79 @@
 using System;
+using System.IO;
 
 namespace Automata
 {
+    public class ENFAGenerator
+    {
+        public const this()
+        {
+            this.hasEpsilon = true;
+            this.stateCount = 5;
+            this.alphaSize = 3;
+            this.transCount = 10;
+            this.acceptCount = 1;
+            this.bloatRange = new Range<double>(1.0, double.PositiveInfinity);
+            this.stateRange = new Range<int>(0, int.MaxValue);
+            this.transRange = new Range<int>(0, int.MaxValue)
+            this.acceptRange = new Range<int>(0, int.MaxValue)
+        }
+
+        public bool hasEpsilon { const get; set; }
+        public int stateCount { const get; set; }
+        public int alphaSize { const get; set; }
+        public int transCount { const get; set; }
+        public int acceptCount { const get; set; }
+
+        public Range<double> bloatRange { const get; set; }
+        public Range<int> stateRange { const get; set; }
+        public Range<int> transRange { const get; set; }
+        public Range<int> acceptRange { const get; set; }
+
+        public void ReadInput(ConsoleArguments Args, int Offset)
+        {
+            hasEpsilon  = Args.GetArgumentBoolean(Offset, hasEpsilon);
+            stateCount  = Args.GetArgumentInt(Offset + 1, stateCount);
+            alphaSize   = Args.GetArgumentInt(Offset + 2, alphaSize);
+            transCount  = Args.GetArgumentInt(Offset + 3, transCount);
+            acceptCount = Args.GetArgumentInt(Offset + 4, acceptCount);
+
+            bloatRange  = Args.GetArgumentDoubleRange(Offset + 5, bloatRange);
+            stateRange  = Args.GetArgumentIntRange(Offset + 6, stateRange);
+            transRange  = Args.GetArgumentIntRange(Offset + 7, transRange);
+            acceptRange = Args.GetArgumentIntRange(Offset + 8, acceptRange);
+        }
+
+        public Metrics CreateENFA(Stream ENFAOutput, Stream DFAOutput)
+        {
+            ENFAutomaton<int, char> genAutom;
+            DFAutomaton<int, char> indexedDfa;
+            Metrics metrics;
+            do
+            {
+                var rand = new Random();
+
+                genAutom   = AutomatonGenerator.GenerateIndexedENFAutomaton(
+                                rand, hasEpsilon, stateCount,
+                                alphaSize, acceptCount, transCount);
+                var genDfa = genAutom.ToDFAutomaton();
+                indexedDfa = Interop.IndexAutomaton<StateSet<int>, char>(genDfa);
+                metrics    = AutomatonMetrics.ComputeMetrics<int, char>(indexedDfa);
+            } while (genAutom.ReachableStates().Count != genAutom.GetStates().Count ||
+                     !bloatRange.InRange(metrics.BloatFactor) ||
+                     !stateRange.InRange(metrics.StateCount) ||
+                     !transRange.InRange(metrics.TransitionCount) ||
+                     !acceptRange.InRange(metrics.AcceptCount));
+
+            var stringAutom = Interop.ToStringAutomaton<int, char>(genAutom);
+            var stringDfa   = Interop.ToStringAutomaton<int, char>(indexedDfa);
+
+            AutomatonParser.PrintENFAutomaton(ENFAOutput, stringAutom);
+            AutomatonParser.PrintDFAutomaton(DFAOutput, stringDfa);
+
+            return metrics;
+        }
+    }
+
     /// <summary>
     /// A handler that generates e-nfas according to a set of dfa metrics.
     /// </summary>
@@ -12,55 +84,27 @@ namespace Automata
             const get return "enfa-output-path dfa-output-path " +
                              "has-epsilon enfa-state-count " +
                              "alphabet-size enfa-transition-count " +
-                             "enfa-accept-count dfa-reachability-range " +
+                             "enfa-accept-count " +
                              "dfa-bloat-factor-range dfa-state-count-range " +
                              "dfa-transition-count-range dfa-accept-count-range";
         }
 
         public void Run(ConsoleArguments Args)
         {
-            bool hasEpsilon  = Args.GetArgumentBoolean(2, true);
-            int stateCount   = Args.GetArgumentInt(3, 5);
-            int alphaSize    = Args.GetArgumentInt(4, 3);
-            int transCount   = Args.GetArgumentInt(5, 10);
-            int acceptCount  = Args.GetArgumentInt(6, 1);
+            var generator = new ENFAGenerator();
 
-            var bloatRange   = Args.GetArgumentDoubleRange(7, new Range<double>(1.0, double.PositiveInfinity));
-            var stateRange   = Args.GetArgumentIntRange(8, new Range<int>(0, int.MaxValue));
-            var transRange   = Args.GetArgumentIntRange(9, new Range<int>(0, int.MaxValue));
-            var acceptRange  = Args.GetArgumentIntRange(10, new Range<int>(0, int.MaxValue));
+            generator.ReadInput(Args, 2);
 
-            ENFAutomaton<int, char> genAutom;
-            DFAutomaton<int, char> indexedDfa;
-            Metrics metrics;
-            do
-            {
-                var rand = new Random();
+            var efs = Args.OpenArgumentFileWrite(0, "output.enfa");
+            var dfs = Args.OpenArgumentFileWrite(1, "output.dfa");
 
-                genAutom       = AutomatonGenerator.GenerateIndexedENFAutomaton(
-                                    rand, hasEpsilon, stateCount,
-                                    alphaSize, acceptCount, transCount);
-                var genDfa     = genAutom.ToDFAutomaton();
-                indexedDfa     = Interop.IndexAutomaton<StateSet<int>, char>(genDfa);
-                metrics        = AutomatonMetrics.ComputeMetrics<int, char>(indexedDfa);
-            } while (!bloatRange.InRange(metrics.BloatFactor) ||
-                     !stateRange.InRange(metrics.StateCount) ||
-                     !transRange.InRange(metrics.TransitionCount) ||
-                     !acceptRange.InRange(metrics.AcceptCount));
+            var metrics = generator.CreateENFA(efs, dfs);
 
-            var stringAutom = Interop.ToStringAutomaton<int, char>(genAutom);
-            var stringDfa   = Interop.ToStringAutomaton<int, char>(indexedDfa);
+            efs.Dispose();
+            dfs.Dispose();
 
             Console.WriteLine("DFA metrics (after SSC):");
             Console.Write((string)metrics);
-
-            var efs = Args.OpenArgumentFileWrite(0, "output.enfa");
-            AutomatonParser.PrintENFAutomaton(efs, stringAutom);
-            efs.Dispose();
-
-            var dfs = Args.OpenArgumentFileWrite(1, "output.dfa");
-            AutomatonParser.PrintDFAutomaton(dfs, stringDfa);
-            dfs.Dispose();
         }
     }
 }
