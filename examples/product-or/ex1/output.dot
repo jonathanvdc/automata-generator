@@ -1,0 +1,11 @@
+digraph dfa {
+    rankdir = LR;
+    __start [style = invis, shape = point];
+    __start -> "(0,0)" [ label = "start" ];
+    node [shape = doublecircle]; "(1,2)" "(2,1)" "(1,1)"
+    node [shape = circle];
+    "(2,1)" -> "(1,1)" [ label = "x" ];
+    "(1,1)" -> "(2,1)" [ label = "x" ];
+    "(1,2)" -> "(2,1)" [ label = "x" ];
+    "(0,0)" -> "(1,2)" [ label = "x" ];
+}
