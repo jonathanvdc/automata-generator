@@ -227,7 +227,7 @@ namespace Automata
                 if (reachable.Contains(sourceState))
                     filteredTable[sourceState, item.Item2] = item.Item3;
             }
-            
+
             reachable.IntersectWith(AcceptingStates);
             return new DFAutomaton<TState, TChar>(StartState, reachable, filteredTable);
         }
@@ -314,6 +314,48 @@ namespace Automata
             var partition = mergedAutomaton.TFAPartition();
 
             return partition[taggedThis.StartState] == partition[taggedOther.StartState];
+        }
+
+        /// <summary>
+        /// Constructs the product automaton of this automaton and the given automaton.
+        /// Accepting states are identified by the given accepting state selection
+        /// function.
+        /// </summary>
+        public const DFAutomaton<Tuple<TState, TState2>, TChar> Product<TState2>(
+            DFAutomaton<TState2, TChar> Other, bool(bool, bool) IsNewAcceptingState)
+        {
+            alias StateTuple = Tuple<TState, TState2>;
+
+            var thisTrans  = this.TransitionFunction;
+            var otherTrans = Other.TransitionFunction;
+
+            var thisAccept  = this.AcceptingStates;
+            var otherAccept = Other.AcceptingStates;
+
+            var startState   = Tuple.Create<TState, TState2>(StartState, Other.StartState);
+            var acceptStates = new StateSet<StateTuple>();
+            var transDict    = new TransitionMap<StateTuple, TChar, StateTuple>();
+
+            var otherStates = Other.GetStates();
+            var alpha = GetAlphabet();
+
+            foreach (var q in this.GetStates())
+            foreach (var p in otherStates)
+            foreach (var sym in alpha)
+            {
+                var from = Tuple.Create<TState, TState2>(q, p);
+
+                if (IsNewAcceptingState(thisAccept.Contains(q), otherAccept.Contains(p)))
+                {
+                    acceptStates.Add(from);
+                }
+
+                var to = Tuple.Create<TState, TState2>(thisTrans[q, sym], otherTrans[p, sym]);
+
+                transDict[from, sym] = to;
+            }
+
+            return new DFAutomaton<Tuple<TState, TState2>, TChar>(startState, acceptStates, transDict);
         }
     }
 }

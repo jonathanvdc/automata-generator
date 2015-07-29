@@ -21,6 +21,7 @@
     <Compile Include="ENFAutomaton.ds" />
     <Compile Include="Regex.ds" />
     <Compile Include="RegexParser.ds" />
+    <Compile Include="RenameHandler.ds" />
     <Compile Include="UnionRegex.ds" />
     <Compile Include="ConcatRegex.ds" />
     <Compile Include="ClosureRegex.ds" />
@@ -28,6 +29,7 @@
     <Compile Include="StateSet.ds" />
     <Compile Include="TransitionMap.ds" />
     <Compile Include="Interop.ds" />
+    <Compile Include="ProductDFAHandler.ds" />
     <Compile Include="Program.ds" />
     <Compile Include="GenerateDFAHandler.ds" />
     <Compile Include="GenerateENFAHandler.ds" />

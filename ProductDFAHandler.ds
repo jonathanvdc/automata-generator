@@ -1,0 +1,38 @@
+using System;
+
+namespace Automata
+{
+    public class ProductDFAHandler : IHandler
+    {
+        public const this(set bool(bool, bool) IsNewAcceptingState);
+
+        public bool(bool, bool) IsNewAcceptingState { const get; private set; }
+        public string Usage { const get return "first-input-path second-input-path output-path reachable-only"; }
+
+        public void Run(ConsoleArguments Args)
+        {
+            bool reachableOnly = Args.GetArgumentBoolean(3, true);
+
+            var ifs1 = Args.OpenArgumentFileRead(0, "input1.dfa");
+            var dfa1 = AutomatonParser.ParseDFAutomaton(ifs1);
+            ifs1.Dispose();
+
+            var ifs2 = Args.OpenArgumentFileRead(1, "input2.dfa");
+            var dfa2 = AutomatonParser.ParseDFAutomaton(ifs2);
+            ifs2.Dispose();
+
+            var productDfa = dfa1.Product<string>(dfa2, IsNewAcceptingState);
+
+            if (reachableOnly)
+            {
+                productDfa = productDfa.RemoveUnreachable();
+            }
+
+            var stringDfa = Interop.NamePairAutomaton<string>(productDfa);
+
+            var ofs = Args.OpenArgumentFileWrite(2, "output.dfa");
+            AutomatonParser.PrintDFAutomaton(ofs, stringDfa);
+            ofs.Dispose();
+        }
+    }
+}

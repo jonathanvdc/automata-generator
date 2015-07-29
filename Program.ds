@@ -103,7 +103,15 @@ namespace Automata
             handlers["metrics-dfa"] = MetricsHandler;
             handlers["graphviz"] = GraphVizHandler;
             handlers["complicate-dfa"] = ComplicateDFAHandler;
+            handlers["and-dfa"] = new ProductDFAHandler(And);
+            handlers["or-dfa"] = new ProductDFAHandler(Or);
+            handlers["xor-dfa"] = new ProductDFAHandler(Xor);
+            handlers["rename"] = RenameHandler;
         }
+
+        private const bool And(bool x, bool y) return x && y;
+        private const bool Or(bool x, bool y) return x || y;
+        private const bool Xor(bool x, bool y) return x != y;
 
         private Dictionary<string, IHandler> handlers;
 

@@ -193,6 +193,18 @@ namespace Automata
             return Automaton.Rename<string, string>(NameSet<TState>, ConvertToString<TChar>);
         }
 
+        private const string NameTuple(Tuple<string, string> Values)
+        {
+            return "(" + Values.Item1 + "," + Values.Item2 + ")";
+        }
+
+        public const DFAutomaton<string, TChar> NamePairAutomaton<TChar>(
+            DFAutomaton<Tuple<string, string>, TChar> Automaton)
+            where TChar : object
+        {
+            return Automaton.Rename<string, TChar>(NameTuple, Id<TChar>);
+        }
+
         /// <summary>
         /// Compiles the given regex to an indexed DFA handle.
         /// </summary>
