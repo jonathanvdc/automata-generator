@@ -106,6 +106,7 @@ namespace Automata
         public const ENFAutomaton<RegexState, char> ToENFAutomaton()
         {
             var startState = new RegexState();
+            var finalState = new RegexState();
 
             var leftAutomaton = Left.ToENFAutomaton();
             var rightAutomaton = Right.ToENFAutomaton();
@@ -117,10 +118,16 @@ namespace Automata
             redirectedStates.Add(rightAutomaton.StartState);
             transTable.Add(startState, default(Optional<char>), redirectedStates);
 
-            var acceptingStates = leftAutomaton.AcceptingStates;
-            acceptingStates.UnionWith(rightAutomaton.AcceptingStates);
+            var oldAcceptingStates = new StateSet<RegexState>(leftAutomaton.AcceptingStates);
+            oldAcceptingStates.UnionWith(rightAutomaton.AcceptingStates);
 
-            return new ENFAutomaton<RegexState, char>(startState, acceptingStates, transTable);
+            foreach (var item in oldAcceptingStates)
+                AutomatonGenerator.AddEpsilonTransition<RegexState, char>(transTable, item, finalState);
+
+            return new ENFAutomaton<RegexState, char>(
+                startState,
+                new StateSet<RegexState>(finalState),
+                transTable);
         }
     }
 }

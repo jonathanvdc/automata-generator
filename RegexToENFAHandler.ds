@@ -1,0 +1,24 @@
+using System;
+
+namespace Automata
+{
+    public static class RegexToENFAHandler : IHandler
+    {
+        public string Usage { const get return "input-path output-path"; }
+
+        public void Run(ConsoleArguments Args)
+        {
+            var ifs = Args.OpenArgumentFileRead(0, "input.re");
+            var re = RegexParser.ParseRegex(ifs);
+            ifs.Dispose();
+
+            var enfa = re.ToENFAutomaton();
+            var indexedEnfa = Interop.IndexAutomaton<RegexState, char>(enfa);
+            var stringEnfa = Interop.ToStringAutomaton<int, char>(indexedEnfa);
+
+            var ofs = Args.OpenArgumentFileWrite(1, "output.enfa");
+            AutomatonParser.PrintENFAutomaton(ofs, stringEnfa);
+            ofs.Dispose();
+        }
+    }
+}

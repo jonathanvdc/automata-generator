@@ -11,12 +11,16 @@ namespace Automata
     /// </summary>
     public static class GraphvizPrinter
     {
-        private void PrintHeader(StreamWriter writer, string Type,
-                                 string StartState, [string] AcceptingStates)
+        private void PrintStartArray(StreamWriter writer, string StartState, StateSet<string> AcceptingStates)
         {
-            // header
-            writer.WriteLine("digraph " + Type + " {");
-            writer.WriteLine("    rankdir = LR;");
+            if (AcceptingStates.Contains(StartState))
+            {
+                writer.Write("    node [shape = doublecircle];")
+            }
+            else
+            {
+                writer.WriteLine("    node [shape = circle];");
+            }
 
             // initial state arrow
             writer.WriteLine("    __start [style = invis, shape = point];");
@@ -24,6 +28,16 @@ namespace Automata
             writer.Write(StartState);
             writer.Write("\" [ label = \"start\" ];");
             writer.WriteLine();
+        }
+
+        private void PrintHeader(StreamWriter writer, string Type,
+                                 string StartState, StateSet<string> AcceptingStates)
+        {
+            // header
+            writer.WriteLine("digraph " + Type + " {");
+            writer.WriteLine("    rankdir = LR;");
+
+            PrintStartArray(writer, StartState, AcceptingStates);
 
             // mark final states
             writer.Write("    node [shape = doublecircle];")

@@ -107,6 +107,20 @@ namespace Automata
             return Map[FromState, Symbol].Add(ToState);
         }
 
+        public bool AddTransition<TState, TChar>(
+            TransitionMap<TState, Optional<TChar>, StateSet<TState>> Map,
+            TState FromState, TChar Symbol, TState ToState)
+        {
+            return AddTransition<TState, TChar>(Map, FromState, new Optional<TChar>(Symbol), ToState);
+        }
+
+        public bool AddEpsilonTransition<TState, TChar>(
+            TransitionMap<TState, Optional<TChar>, StateSet<TState>> Map,
+            TState FromState, TState ToState)
+        {
+            return AddTransition<TState, TChar>(Map, FromState, default(Optional<TChar>), ToState);
+        }
+
         public TransitionMap<TState, Optional<TChar>, StateSet<TState>> GenerateTransitions<TState, TChar>(
             Random rand, bool AllowEpsilon, int TransitionCount, [TState] States, [TChar] Alpha)
         {

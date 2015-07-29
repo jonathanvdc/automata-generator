@@ -106,19 +106,14 @@ namespace Automata
             var transTable = leftAutomaton.TransitionFunction;
             transTable.Add(rightAutomaton.TransitionFunction);
 
-            var leftStartStates = new StateSet<RegexState>(leftAutomaton.StartState);
-            transTable[startState, default(Optional<char>)] = leftStartStates;
-
-            var leftEndStates = leftAutomaton.AcceptingStates;
-            var rightStartStates = new StateSet<RegexState>(rightAutomaton.StartState);
-            foreach (var item in leftEndStates)
+            foreach (var item in leftAutomaton.AcceptingStates)
             {
-                transTable[item, default(Optional<char>)] = rightStartStates;
+                AutomatonGenerator.AddEpsilonTransition<RegexState, char>(transTable, item, rightAutomaton.StartState);
             }
 
             var acceptingStates = rightAutomaton.AcceptingStates;
 
-            return new ENFAutomaton<RegexState, char>(startState, acceptingStates, transTable);
+            return new ENFAutomaton<RegexState, char>(leftAutomaton.StartState, acceptingStates, transTable);
         }
     }
 }
