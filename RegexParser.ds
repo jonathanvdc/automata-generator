@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 
 namespace Automata
 {
@@ -124,6 +125,14 @@ namespace Automata
         public IRegex ParseRegex(string Input)
         {
             return ParseRegex(new StringParser(Input, 0));
+        }
+
+        public IRegex ParseRegex(Stream Source)
+        {
+            var reader = new StreamReader(Source);
+            string allText = reader.ReadToEnd().Trim(null);
+            reader.Dispose();
+            return ParseRegex(allText);
         }
     }
 }

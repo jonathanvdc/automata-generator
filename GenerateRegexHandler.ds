@@ -1,0 +1,29 @@
+using System;
+using System.Text;
+using System.IO;
+
+namespace Automata
+{
+    public static class GenerateRegexHandler : IHandler
+    {
+        public string Usage { const get return "output-path alphabet-size complexity"; }
+
+        public void Run(ConsoleArguments Args)
+        {
+            int alphaSize  = Args.GetArgumentInt(1, 2);
+            int complexity = Args.GetArgumentInt(2, 10);
+
+            var regex = AutomatonGenerator.GenerateRegex(new Random(), alphaSize, complexity).Optimize();
+
+            var ofs    = Args.OpenArgumentFileWrite(0, "output.re");
+            var writer = new StreamWriter(ofs);
+
+            writer.Write((string)regex);
+
+            writer.Dispose();
+            ofs.Dispose();
+
+            Console.WriteLine((string)regex);
+        }
+    }
+}

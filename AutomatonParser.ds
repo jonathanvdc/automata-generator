@@ -131,8 +131,8 @@ namespace Automata
 
         public ENFAutomaton<string, string> ParseENFAutomaton(WordReader reader)
         {
-            string initial;
-            StateSet<string> finalStates;
+            string initial = "";
+            var finalStates = new StateSet<string>();
             var trans = new TransitionMap<string, Optional<string>, StateSet<string>>();
 
             while (!reader.IsEmpty)
@@ -144,7 +144,7 @@ namespace Automata
                 }
                 else if (item.Equals("accepts"))
                 {
-                    finalStates = new StateSet<string>(reader.ReadLine());
+                    finalStates.UnionWith(reader.ReadLine());
                 }
                 else if (item.Equals("transitions"))
                 {
@@ -173,8 +173,8 @@ namespace Automata
 
         public DFAutomaton<string, string> ParseDFAutomaton(WordReader reader)
         {
-            string initial;
-            StateSet<string> finalStates;
+            string initial = "";
+            var finalStates = new StateSet<string>();
             var trans = new TransitionMap<string, string, string>();
 
             while (!reader.IsEmpty)
@@ -186,7 +186,7 @@ namespace Automata
                 }
                 else if (item.Equals("accepts"))
                 {
-                    finalStates = new StateSet<string>(reader.ReadLine());
+                    finalStates.UnionWith(reader.ReadLine());
                 }
                 else if (item.Equals("transitions"))
                 {
@@ -243,7 +243,10 @@ namespace Automata
 
             writer.WriteLine("enfa");
             writer.Write("start "); writer.WriteLine(Value.StartState);
-            WriteElements(writer, "accepts", Value.AcceptingStates);
+            if (Value.AcceptingStates.Count > 0)
+            {
+                WriteElements(writer, "accepts", Value.AcceptingStates);
+            }
             writer.WriteLine("transitions");
 
             foreach (var tuple in Value.TransitionFunction)
@@ -268,7 +271,10 @@ namespace Automata
 
             writer.WriteLine("dfa");
             writer.Write("start "); writer.WriteLine(Value.StartState);
-            WriteElements(writer, "accepts", Value.AcceptingStates);
+            if (Value.AcceptingStates.Count > 0)
+            {
+                WriteElements(writer, "accepts", Value.AcceptingStates);
+            }
             writer.WriteLine("transitions");
 
             foreach (var tuple in Value.TransitionFunction)

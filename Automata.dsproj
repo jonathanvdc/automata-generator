@@ -34,6 +34,7 @@
     <Compile Include="GenerateDFAHandler.ds" />
     <Compile Include="GenerateENFAHandler.ds" />
     <Compile Include="GenerateMetricsENFAHandler.ds" />
+    <Compile Include="GenerateRegexHandler.ds" />
     <Compile Include="GraphvizHandler.ds" />
     <Compile Include="GraphvizPrinter.ds" />
     <Compile Include="SSCHandler.ds" />

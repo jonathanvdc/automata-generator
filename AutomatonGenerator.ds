@@ -213,5 +213,60 @@ namespace Automata
             }
             return result;
         }
+
+        /// <summary>
+        /// Randomly generates a regular expression with the given alphabet size and
+        /// complexity.
+        /// </summary>
+        public const IRegex GenerateRegex(Random rand, int AlphabetSize, int Complexity)
+        {
+            return GenerateRegex(rand, GenerateAlphabet(rand, AlphabetSize), Complexity);
+        }
+
+        /// <summary>
+        /// Randomly generates a regular expression with the given alphabet and
+        /// complexity.
+        /// </summary>
+        public const IRegex GenerateRegex(Random rand, [char] Alpha, int Complexity)
+        {
+            if (Complexity > 1)
+            {
+                int randNum = rand.Next(0, 5);
+                if (randNum == 0 || randNum == 1)
+                {
+                    var left = GenerateRegex(rand, Alpha, Complexity / 2);
+                    var right = GenerateRegex(rand, Alpha, Complexity / 2);
+
+                    return new UnionRegex(left, right);
+                }
+                else if (randNum == 2 || randNum == 3)
+                {
+                    var left = GenerateRegex(rand, Alpha, Complexity / 2);
+                    var right = GenerateRegex(rand, Alpha, Complexity / 2);
+
+                    return new ConcatRegex(left, right);
+                }
+                else
+                {
+                    return new ClosureRegex(GenerateRegex(rand, Alpha, Complexity / 2));
+                }
+            }
+            else
+            {
+                int randNum = rand.Next(0, 5);
+                if (randNum == 0)
+                {
+                    return EpsilonRegex;
+                }
+                else if (randNum == 1)
+                {
+                    return PhiRegex;
+                }
+                else
+                {
+                    return new LiteralRegex(GetRandomElement<char>(Alpha, rand));
+                }
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Automata
 {
@@ -12,6 +13,80 @@ namespace Automata
 
         public IRegex Left { const get; private set; }
         public IRegex Right { const get; private set; }
+
+        private static void AddToUnionSet(StateSet<IRegex> Set, IRegex Regex)
+        {
+            if (Regex is UnionRegex)
+            {
+                var unionRe = (UnionRegex)Regex;
+                AddToUnionSet(Set, unionRe.Left);
+                AddToUnionSet(Set, unionRe.Right);
+            }
+            else
+            {
+                Set.Add(Regex);
+            }
+        }
+
+        public static StateSet<IRegex> ToUnionSet(IRegex Regex)
+        {
+            var hashSet = new StateSet<IRegex>();
+            AddToUnionSet(hashSet, Regex);
+            return hashSet;
+        }
+
+        public static const IRegex Create([IRegex] Values)
+        {
+            if (!Enumerable.Any<IRegex>(Values))
+            {
+                return PhiRegex;
+            }
+            else
+            {
+                var result = Enumerable.First<IRegex>(Values);
+                foreach (var item in Enumerable.Skip<IRegex>(Values, 1))
+                {
+                    result = new UnionRegex(result, item);
+                }
+                return result;
+            }
+        }
+
+        public const IRegex Optimize()
+        {
+            var lopt = Left.Optimize();
+            var ropt = Right.Optimize();
+
+            if (lopt == PhiRegex)
+            {
+                return ropt;
+            }
+            else if (ropt == PhiRegex)
+            {
+                return lopt;
+            }
+            else
+            {
+                return Create(ToUnionSet(new UnionRegex(lopt, ropt)));
+            }
+        }
+
+        public override const int GetHashCode()
+        {
+            return ToUnionSet(this).GetHashCode();
+        }
+
+        public override const bool Equals(object Other)
+        {
+            if (Other is UnionRegex)
+            {
+                return ToUnionSet(this) == ToUnionSet((UnionRegex)Other);
+            }
+            else
+            {
+                return false;
+            }
+        }
 
         public const string ToString()
         {

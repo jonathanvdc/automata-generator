@@ -97,6 +97,7 @@ namespace Automata
             handlers["generate-enfa"] = GenerateENFAHandler;
             handlers["generate-dfa"] = GenerateDFAHandler;
             handlers["generate-metrics-enfa"] = GenerateMetricsENFAHandler;
+            handlers["generate-regex"] = GenerateRegexHandler;
             handlers["ssc"] = SSCHandler;
             handlers["minimize-dfa"] = MinimizeHandler;
             handlers["equivalent-dfa"] = EquivalenceHandler;

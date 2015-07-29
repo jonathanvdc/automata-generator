@@ -23,6 +23,12 @@ namespace Automata
         /// Constructs an epsilon-nfa for this regex.
         /// </summary>
         const ENFAutomaton<RegexState, char> ToENFAutomaton();
+
+        /// <summary>
+        /// Produces an optimized version of this regex.
+        /// </summary>
+        const IRegex Optimize();
+
         /// <summary>
         /// Gets this regex's string representation.
         /// </summary>
@@ -46,6 +52,11 @@ namespace Automata
         /// </summary>
         public char Literal { const get; private set; }
 
+        public const IRegex Optimize()
+        {
+            return this;
+        }
+
         public const string ToString()
         {
             return (string)Literal;
@@ -67,6 +78,23 @@ namespace Automata
             transitions[startState, new Optional<char>(Literal)] = acceptingStates;
             return new ENFAutomaton<RegexState, char>(startState, acceptingStates, transitions);
         }
+
+        public override const int GetHashCode()
+        {
+            return Literal.GetHashCode();
+        }
+
+        public override const bool Equals(object Other)
+        {
+            if (Other is LiteralRegex)
+            {
+                return Literal == ((LiteralRegex)Other).Literal;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 
     /// <summary>
@@ -79,6 +107,11 @@ namespace Automata
         public const string ToString()
         {
             return "\\e";
+        }
+
+        public const IRegex Optimize()
+        {
+            return this;
         }
 
         /// <summary>
@@ -106,11 +139,15 @@ namespace Automata
     {
         alias TransitionTable = TransitionMap<RegexState, Optional<char>, StateSet<RegexState>>;
 
+        public const IRegex Optimize()
+        {
+            return this;
+        }
+
         public const string ToString()
         {
             return "\\p";
         }
-
 
         /// <summary>
         /// Constructs an epsilon-nfa for this regex.

@@ -19,6 +19,42 @@ namespace Automata
         /// </summary>
         public IRegex Regex { const get; private set; }
 
+        public const IRegex Optimize()
+        {
+            var optRe = Regex.Optimize();
+
+            if (optRe == PhiRegex || optRe == EpsilonRegex)
+            {
+                return EpsilonRegex;
+            }
+            else if (optRe is ClosureRegex)
+            {
+                var innerClosure = (ClosureRegex)optRe;
+                return innerClosure.Regex;
+            }
+            else
+            {
+                return new ClosureRegex(optRe);
+            }
+        }
+
+        public override const int GetHashCode()
+        {
+            return Regex.GetHashCode() << 1;
+        }
+
+        public override const bool Equals(object Other)
+        {
+            if (Other is ClosureRegex)
+            {
+                return this.Regex == ((ClosureRegex)Other).Regex;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public const string ToString()
         {
             return "(" + Regex.ToString() + ")" + "*";

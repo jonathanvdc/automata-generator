@@ -23,6 +23,29 @@ namespace Automata
         /// </summary>
         public IRegex Right { const get; private set; }
 
+        public const IRegex Optimize()
+        {
+            var lopt = Left.Optimize();
+            var ropt = Right.Optimize();
+
+            if (lopt == PhiRegex || ropt == PhiRegex)
+            {
+                return PhiRegex;
+            }
+            else if (lopt == EpsilonRegex)
+            {
+                return ropt;
+            }
+            else if (ropt == EpsilonRegex)
+            {
+                return lopt;
+            }
+            else
+            {
+                return new ConcatRegex(lopt, ropt);
+            }
+        }
+
         public const string ToString()
         {
             string result = "";
@@ -37,6 +60,25 @@ namespace Automata
             }
             else result = result + Right.ToString();
             return result;
+        }
+
+        public override const int GetHashCode()
+        {
+            return Left.GetHashCode() << 16 ^ Right.GetHashCode();
+        }
+
+        public override const bool Equals(object Other)
+        {
+            if (Other is ConcatRegex)
+            {
+                var otherConcat = (ConcatRegex)Other;
+
+                return this.Left == otherConcat.Left && this.Right == otherConcat.Right;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>
