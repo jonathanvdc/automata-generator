@@ -100,6 +100,7 @@ namespace Automata
             handlers["generate-regex"] = GenerateRegexHandler;
             handlers["ssc"] = SSCHandler;
             handlers["regex-to-enfa"] = RegexToENFAHandler;
+            handlers["fa-to-regex"] = AutomatonToRegexHandler;
             handlers["minimize-dfa"] = MinimizeHandler;
             handlers["equivalent-dfa"] = EquivalenceHandler;
             handlers["metrics-dfa"] = MetricsHandler;

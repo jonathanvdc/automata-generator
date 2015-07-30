@@ -1,0 +1,251 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Automata
+{
+    /// <summary>
+    /// Provides extensions that make creating regex automata easier.
+    /// </summary>
+    public static class RegexAutomatonBuilder
+    {
+        /// <summary>
+        /// Creates a regex for the given optional, which is interpreted as being
+        /// an epsilon-transition if it does not have a value, and a normal transition
+        /// if it does.
+        /// </summary>
+        private const IRegex optionalToRegex(Optional<char> Value)
+        {
+            if (Value.HasValue)
+                return new LiteralRegex(Value.Value);
+            else
+                return EpsilonRegex;
+        }
+
+        /// <summary>
+        /// Creates a regex automaton from the given dfa.
+        /// </summary>
+        public const RegexAutomaton<TState> Create<TState>(DFAutomaton<TState, char> Automaton)
+        {
+            var result = new RegexAutomaton<TState>(Automaton.StartState, Automaton.AcceptingStates);
+
+            foreach (var tuple in Automaton.TransitionFunction)
+            {
+                result.AddTransition(tuple.Item1, new LiteralRegex(tuple.Item2), tuple.Item3);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Creates a regex automaton from the given epsilon nfa.
+        /// </summary>
+        public const RegexAutomaton<TState> Create<TState>(ENFAutomaton<TState, char> Automaton)
+        {
+            var result = new RegexAutomaton<TState>(Automaton.StartState, Automaton.AcceptingStates);
+
+            foreach (var tuple in Automaton.TransitionFunction)
+            foreach (var to in tuple.Item3)
+            {
+                result.AddTransition(tuple.Item1, optionalToRegex(tuple.Item2), to);
+            }
+
+            return result;
+        }
+    }
+
+    /// <summary>
+    /// Defines an automaton whose transition labels are regular expressions.
+    /// </summary>
+    public class RegexAutomaton<TState>
+        where TState : object
+    {
+        public const this(set TState StartState, set StateSet<TState> AcceptingStates)
+        {
+            this.TransitionFunction = new TransitionMap<TState, TState, IRegex>();
+        }
+
+        public const this(set TState StartState, set StateSet<TState> AcceptingStates,
+                          TransitionMap<TState, TState, IRegex> TransitionFunction)
+        {
+            this.TransitionFunction = new TransitionMap<TState, TState, IRegex>(TransitionFunction);
+        }
+
+        /// <summary>
+        /// Gets the regex automaton's start state.
+        /// </summary>
+        public TState StartState { const get; private set; }
+        /// <summary>
+        /// Gets the regex automaton's set of accepting states.
+        /// </summary>
+        public StateSet<TState> AcceptingStates { const get; private set; }
+        /// <summary>
+        /// Gets the regex automaton's transition function.
+        /// </summary>
+        public TransitionMap<TState, TState, IRegex> TransitionFunction { const get; private set; }
+
+        /// <summary>
+        /// Gets the transition label regex for the transition from the first
+        /// state to the second. If no such label is defined, a phi regex
+        /// is returned.
+        /// </summary>
+        public const IRegex GetTransitionRegex(TState From, TState To)
+        {
+            if (TransitionFunction.Contains(From, To))
+                return TransitionFunction[From, To];
+            else
+                return PhiRegex;
+        }
+
+        /// <summary>
+        /// Adds a transtion to this regex automaton.
+        /// </summary>
+        public void AddTransition(TState From, IRegex Label, TState To)
+        {
+            var oldRe = GetTransitionRegex(From, To);
+            TransitionFunction[From, To] = UnionRegex.Create(oldRe, Label);
+        }
+
+        /// <summary>
+        /// Gets a set of all states currently in use by the regex automaton.
+        /// </summary>
+        public const StateSet<TState> GetStates()
+        {
+            var results = new StateSet<TState>(StartState);
+            results.UnionWith(AcceptingStates);
+            foreach (var item in TransitionFunction)
+            {
+                results.Add(item.Item1);
+                results.Add(item.Item2);
+            }
+            return results;
+        }
+
+        /// <summary>
+        /// Removes a single state from this regex automaton.
+        /// </summary>
+        private void RemoveState(TState Target)
+        {
+            var pairs = new StateSet<KeyValuePair<TState, TState>>();
+            foreach (var item in TransitionFunction)
+            {
+                if (item.Item1 == Target || item.Item2 == Target)
+                {
+                    pairs.Add(new KeyValuePair<TState, TState>(item.Item1, item.Item2));
+                }
+            }
+            foreach (var item in pairs)
+            {
+                TransitionFunction.Remove(item);
+            }
+        }
+
+        /// <summary>
+        /// Eliminates a single state in this regex automaton.
+        /// </summary>
+        private void EliminateState(TState s, StateSet<TState> States)
+        {
+            // s -> S -> s
+            var S = GetTransitionRegex(s, s);
+
+            var sClosure = ClosureRegex.Create(S);
+
+            // We'll now iterate over all states (except for 's', which we have already
+            // discarded from the set of states), and rewrite their transitions
+            // by creating a direct transition for every indirect transition via 's'.
+            foreach (var q in States)
+            {
+                // q -> Q -> s
+                var Q = GetTransitionRegex(q, s);
+
+                // We don't need to take `s -> Q' -> q` into account here due
+                // to the nature of these doubly nested loops: at some point
+                // in the iteration, 'q' and 'p's places will be reversed.
+
+                foreach (var p in States)
+                {
+                    // s -> P -> p
+                    var P = GetTransitionRegex(s, p);
+
+                    // Create a direct transition QS*P, which encompasses all indirect transitions
+                    // from 'q' to 'p' through 's'.
+                    var directTransition = ConcatRegex.Create(new IRegex[] { Q, sClosure, P });
+
+                    AddTransition(q, directTransition, p);
+
+                    // `q -> R -> p` is unified with the new regex by calling `AddTransition`:
+                    // we need not handle it ourselves.
+                }
+            }
+
+            // Remove state 's' from the automaton itself.
+            RemoveState(s);
+        }
+
+        private const IRegex ToSubRegex(TState finalState, StateSet<TState> reStates)
+        {
+            var allStates = new StateSet<TState>(reStates);
+
+            // eliminate every state that is neither the start state nor
+            // the single accepting state
+            while (reStates.Count > 0)
+            {
+                var s = reStates.Pop();
+
+                // make sure we don't eliminate the start or final states
+                if (!(s == StartState) && !(s == finalState))
+                {
+                    // eliminate state s
+                    allStates.Remove(s);
+                    EliminateState(s, allStates);
+                }
+            }
+
+            // s -> R -> R
+            var R = GetTransitionRegex(StartState, StartState);
+            if (reStates.Count == 1)
+            {
+                // R*
+
+                return ClosureRegex.Create(R);
+            }
+            else
+            {
+                // s -> S -> f
+                var S = GetTransitionRegex(StartState, finalState);
+                // f -> T -> s
+                var T = GetTransitionRegex(finalState, StartState);
+                // f -> U -> f
+                var U = GetTransitionRegex(finalState, finalState);
+
+                // (R+SU*T)*SU*
+
+                var uClosure = ClosureRegex.Create(U);
+
+                var RSUTClosure = ClosureRegex.Create(UnionRegex.Create(R, ConcatRegex.Create(new IRegex[] { S, uClosure, T })));
+
+                return ConcatRegex.Create(new IRegex[] { RSUTClosure, S, uClosure });
+            }
+        }
+
+        /// <summary>
+        /// Collapses this regex automaton into a single regular expression.
+        /// </summary>
+        public const IRegex ToRegex()
+        {
+            var states = this.GetStates();
+
+            var results = new List<IRegex>();
+            foreach (var finalState in AcceptingStates)
+            {
+                var reAutom = new RegexAutomaton<TState>(
+                    StartState, new StateSet<TState>(finalState), TransitionFunction);
+
+                var subRegex = reAutom.ToSubRegex(finalState, new StateSet<TState>(states));
+
+                results.Add(subRegex);
+            }
+            return UnionRegex.Create(results);
+        }
+    }
+}

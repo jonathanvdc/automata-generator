@@ -81,16 +81,33 @@ namespace Automata
         public void Run(ConsoleArguments Args)
         {
             var ifs = Args.OpenArgumentFileRead(0, "input.dfa");
-            var dfa = AutomatonParser.ParseDFAutomaton(ifs);
+            var automaton = AutomatonParser.ParseUnknownAutomaton(ifs);
             ifs.Dispose();
 
-            var renamers = CreateRenamers(Args, dfa.GetStates(), dfa.GetAlphabet());
+            if (automaton is DFAutomaton<string, string>)
+            {
+                var dfa = (DFAutomaton<string, string>)automaton;
 
-            var stringDfa = dfa.Rename<string, string>(renamers.Item1, renamers.Item2);
+                var renamers = CreateRenamers(Args, dfa.GetStates(), dfa.GetAlphabet());
 
-            var ofs = Args.OpenArgumentFileWrite(1, "output.dfa");
-            AutomatonParser.PrintDFAutomaton(ofs, stringDfa);
-            ofs.Dispose();
+                var stringDfa = dfa.Rename<string, string>(renamers.Item1, renamers.Item2);
+
+                var ofs = Args.OpenArgumentFileWrite(1, "output.dfa");
+                AutomatonParser.PrintDFAutomaton(ofs, stringDfa);
+                ofs.Dispose();
+            }
+            else
+            {
+                var enfa = (ENFAutomaton<string, string>)automaton;
+
+                var renamers = CreateRenamers(Args, enfa.GetStates(), enfa.GetAlphabet());
+
+                var stringEnfa = enfa.Rename<string, string>(renamers.Item1, renamers.Item2);
+
+                var ofs = Args.OpenArgumentFileWrite(1, "output.enfa");
+                AutomatonParser.PrintENFAutomaton(ofs, stringEnfa);
+                ofs.Dispose();
+            }
         }
     }
 }

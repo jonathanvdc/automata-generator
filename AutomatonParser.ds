@@ -247,18 +247,22 @@ namespace Automata
             {
                 WriteElements(writer, "accepts", Value.AcceptingStates);
             }
-            writer.WriteLine("transitions");
 
-            foreach (var tuple in Value.TransitionFunction)
+            if (Value.TransitionFunction.Count > 0)
             {
-                foreach (var targetState in tuple.Item3)
+                writer.WriteLine("transitions");
+
+                foreach (var tuple in Value.TransitionFunction)
                 {
-                    writer.Write(tuple.Item1);
-                    writer.Write(" ");
-                    writer.Write(PrintTransition(tuple.Item2));
-                    writer.Write(" ");
-                    writer.Write(targetState);
-                    writer.WriteLine();
+                    foreach (var targetState in tuple.Item3)
+                    {
+                        writer.Write(tuple.Item1);
+                        writer.Write(" ");
+                        writer.Write(PrintTransition(tuple.Item2));
+                        writer.Write(" ");
+                        writer.Write(targetState);
+                        writer.WriteLine();
+                    }
                 }
             }
 
@@ -275,16 +279,20 @@ namespace Automata
             {
                 WriteElements(writer, "accepts", Value.AcceptingStates);
             }
-            writer.WriteLine("transitions");
 
-            foreach (var tuple in Value.TransitionFunction)
+            if (Value.TransitionFunction.Count > 0)
             {
-                writer.Write(tuple.Item1);
-                writer.Write(" ");
-                writer.Write(tuple.Item2);
-                writer.Write(" ");
-                writer.Write(tuple.Item3);
-                writer.WriteLine();
+                writer.WriteLine("transitions");
+
+                foreach (var tuple in Value.TransitionFunction)
+                {
+                    writer.Write(tuple.Item1);
+                    writer.Write(" ");
+                    writer.Write(tuple.Item2);
+                    writer.Write(" ");
+                    writer.Write(tuple.Item3);
+                    writer.WriteLine();
+                }
             }
 
             writer.Dispose();

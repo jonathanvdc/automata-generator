@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Automata
 {
@@ -23,27 +24,32 @@ namespace Automata
         /// </summary>
         public IRegex Right { const get; private set; }
 
+        public static const IRegex Create(IRegex First, IRegex Second)
+        {
+            if (First == PhiRegex || Second == PhiRegex)
+                return PhiRegex;
+            else if (First == EpsilonRegex)
+                return Second;
+            else if (Second == EpsilonRegex)
+                return First;
+            else
+                return new ConcatRegex(First, Second);
+        }
+
+        public static const IRegex Create([IRegex] Values)
+        {
+            if (!Enumerable.Any<IRegex>(Values))
+                return EpsilonRegex;
+            else
+                return Enumerable.Aggregate<IRegex>(Values, Create);
+        }
+
         public const IRegex Optimize()
         {
             var lopt = Left.Optimize();
             var ropt = Right.Optimize();
 
-            if (lopt == PhiRegex || ropt == PhiRegex)
-            {
-                return PhiRegex;
-            }
-            else if (lopt == EpsilonRegex)
-            {
-                return ropt;
-            }
-            else if (ropt == EpsilonRegex)
-            {
-                return lopt;
-            }
-            else
-            {
-                return new ConcatRegex(lopt, ropt);
-            }
+            return Create(lopt, ropt);
         }
 
         public const string ToString()

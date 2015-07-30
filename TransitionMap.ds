@@ -49,6 +49,16 @@ namespace Automata
                 Add(item);
         }
 
+        public bool Remove(KeyValuePair<T1, T2> Pair)
+        {
+            return transitions.Remove(Pair);
+        }
+
+        public bool Remove(T1 First, T2 Second)
+        {
+            return Remove(new KeyValuePair<T1, T2>(First, Second));
+        }
+
         private static const Tuple<T1, T2, T3> ToTuple(KeyValuePair<KeyValuePair<T1, T2>, T3> Pair)
         {
             return new Tuple<T1, T2, T3>(Pair.Key.Key, Pair.Key.Value, Pair.Value);

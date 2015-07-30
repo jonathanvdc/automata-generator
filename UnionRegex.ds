@@ -35,6 +35,16 @@ namespace Automata
             return hashSet;
         }
 
+        public static const IRegex Create(IRegex First, IRegex Second)
+        {
+            if (First == PhiRegex)
+                return Second;
+            else if (Second == PhiRegex)
+                return First;
+            else
+                return new UnionRegex(First, Second);
+        }
+
         public static const IRegex Create([IRegex] Values)
         {
             if (!Enumerable.Any<IRegex>(Values))
@@ -43,12 +53,7 @@ namespace Automata
             }
             else
             {
-                var result = Enumerable.First<IRegex>(Values);
-                foreach (var item in Enumerable.Skip<IRegex>(Values, 1))
-                {
-                    result = new UnionRegex(result, item);
-                }
-                return result;
+                return Enumerable.Aggregate<IRegex>(Values, Create);
             }
         }
 
@@ -57,18 +62,7 @@ namespace Automata
             var lopt = Left.Optimize();
             var ropt = Right.Optimize();
 
-            if (lopt == PhiRegex)
-            {
-                return ropt;
-            }
-            else if (ropt == PhiRegex)
-            {
-                return lopt;
-            }
-            else
-            {
-                return Create(ToUnionSet(new UnionRegex(lopt, ropt)));
-            }
+            return Create(ToUnionSet(Create(lopt, ropt)));
         }
 
         public override const int GetHashCode()

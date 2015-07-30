@@ -19,23 +19,26 @@ namespace Automata
         /// </summary>
         public IRegex Regex { const get; private set; }
 
-        public const IRegex Optimize()
+        public static const IRegex Create(IRegex Value)
         {
-            var optRe = Regex.Optimize();
-
-            if (optRe == PhiRegex || optRe == EpsilonRegex)
+            if (Value == PhiRegex || Value == EpsilonRegex)
             {
                 return EpsilonRegex;
             }
-            else if (optRe is ClosureRegex)
+            else if (Value is ClosureRegex)
             {
-                var innerClosure = (ClosureRegex)optRe;
+                var innerClosure = (ClosureRegex)Value;
                 return innerClosure.Regex;
             }
             else
             {
-                return new ClosureRegex(optRe);
+                return new ClosureRegex(Value);
             }
+        }
+
+        public const IRegex Optimize()
+        {
+            return Create(Regex.Optimize());
         }
 
         public override const int GetHashCode()

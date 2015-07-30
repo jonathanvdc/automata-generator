@@ -15,6 +15,7 @@
     <Compile Include="AutomatonGenerator.ds" />
     <Compile Include="AutomatonMetrics.ds" />
     <Compile Include="AutomatonParser.ds" />
+    <Compile Include="AutomatonToRegexHandler.ds" />
     <Compile Include="ConcatRegex.ds" />
     <Compile Include="ClosureRegex.ds" />
     <Compile Include="ComplicateDFAHandler.ds" />
@@ -36,6 +37,7 @@
     <Compile Include="Program.ds" />
     <Compile Include="Range.ds" />
     <Compile Include="Regex.ds" />
+    <Compile Include="RegexAutomaton.ds" />
     <Compile Include="RegexParser.ds" />
     <Compile Include="RegexToENFAHandler.ds" />
     <Compile Include="RenameHandler.ds" />

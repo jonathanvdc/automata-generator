@@ -1,0 +1,65 @@
+using System;
+using System.IO;
+using System.Text;
+
+namespace Automata
+{
+    public static class AutomatonToRegexHandler : IHandler
+    {
+        public string Usage
+        {
+            const get return "input-path output-path";
+        }
+
+        private const T Id<T>(T Value)
+        {
+            return Value;
+        }
+
+        private const char ToCharacter(string Value)
+        {
+            if (Value.Length == 0)
+                return '/';
+            else
+                return Value[0];
+        }
+
+        private RegexAutomaton<string> ToRegexAutomaton(IAutomaton<string> Value)
+        {
+            if (Value is DFAutomaton<string, string>)
+            {
+                var dfa = (DFAutomaton<string, string>)Value;
+                var renamedDfa = dfa.Rename<string, char>(Id<string>, ToCharacter);
+
+                return RegexAutomatonBuilder.Create<string>(renamedDfa);
+            }
+            else
+            {
+                var enfa = (ENFAutomaton<string, string>)Value;
+                var renamedEnfa = enfa.Rename<string, char>(Id<string>, ToCharacter);
+
+                return RegexAutomatonBuilder.Create<string>(renamedEnfa);
+            }
+        }
+
+        public void Run(ConsoleArguments Args)
+        {
+            var ifs = Args.OpenArgumentFileRead(0, "input.dfa");
+            var automaton = AutomatonParser.ParseUnknownAutomaton(ifs);
+            ifs.Dispose();
+
+            var regexAutom = ToRegexAutomaton(automaton);
+            var regex = regexAutom.ToRegex();
+
+            string stringRepr = (string)regex;
+
+            Console.WriteLine(stringRepr);
+
+            var ofs = Args.OpenArgumentFileWrite(1, "output.re");
+            var writer = new StreamWriter(ofs);
+            writer.Write(stringRepr);
+            writer.Dispose();
+            ofs.Dispose();
+        }
+    }
+}
