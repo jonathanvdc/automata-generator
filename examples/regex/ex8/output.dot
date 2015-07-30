@@ -1,0 +1,34 @@
+digraph enfa {
+    rankdir = LR;
+    node [shape = circle];
+    __start [style = invis, shape = point];
+    __start -> "0" [ label = "start" ];
+    node [shape = doublecircle]; "1"
+    node [shape = circle];
+    "2" -> "3" [ label = "k" ];
+    "4" -> "5" [ label = "d" ];
+    "3" -> "4" [ label = "&epsilon;" ];
+    "6" -> "7" [ label = "&epsilon;" ];
+    "8" -> "9" [ label = "k" ];
+    "10" -> "6" [ label = "&epsilon;" ];
+    "10" -> "8" [ label = "&epsilon;" ];
+    "7" -> "11" [ label = "&epsilon;" ];
+    "9" -> "11" [ label = "&epsilon;" ];
+    "0" -> "2" [ label = "&epsilon;" ];
+    "0" -> "10" [ label = "&epsilon;" ];
+    "5" -> "12" [ label = "&epsilon;" ];
+    "11" -> "12" [ label = "&epsilon;" ];
+    "13" -> "14" [ label = "i" ];
+    "15" -> "13" [ label = "&epsilon;" ];
+    "15" -> "16" [ label = "&epsilon;" ];
+    "14" -> "13" [ label = "&epsilon;" ];
+    "14" -> "16" [ label = "&epsilon;" ];
+    "17" -> "18" [ label = "k" ];
+    "19" -> "20" [ label = "i" ];
+    "21" -> "17" [ label = "&epsilon;" ];
+    "21" -> "19" [ label = "&epsilon;" ];
+    "18" -> "1" [ label = "&epsilon;" ];
+    "20" -> "1" [ label = "&epsilon;" ];
+    "16" -> "21" [ label = "&epsilon;" ];
+    "12" -> "15" [ label = "&epsilon;" ];
+}

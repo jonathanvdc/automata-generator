@@ -1,0 +1,19 @@
+digraph dfa {
+    rankdir = LR;
+    node [shape = doublecircle];    __start [style = invis, shape = point];
+    __start -> "{0,1,12,13,2,4,6}" [ label = "start" ];
+    node [shape = doublecircle]; "{0,1,12,13,2,4,6}" "{1,11}"
+    node [shape = circle];
+    "{0,1,12,13,2,4,6}" -> "{3,7,8}" [ label = "r" ];
+    "{0,1,12,13,2,4,6}" -> "{5,7,8}" [ label = "v" ];
+    "{3,7,8}" -> "{}" [ label = "r" ];
+    "{3,7,8}" -> "{10,9}" [ label = "v" ];
+    "{}" -> "{}" [ label = "r" ];
+    "{}" -> "{}" [ label = "v" ];
+    "{5,7,8}" -> "{}" [ label = "r" ];
+    "{5,7,8}" -> "{10,9}" [ label = "v" ];
+    "{10,9}" -> "{1,11}" [ label = "r" ];
+    "{10,9}" -> "{}" [ label = "v" ];
+    "{1,11}" -> "{}" [ label = "r" ];
+    "{1,11}" -> "{}" [ label = "v" ];
+}

@@ -1,0 +1,18 @@
+dfa
+start 0
+accepts 1 2
+transitions
+0 a 3
+0 b 4
+3 a 1
+3 b 5
+1 a 2
+1 b 6
+2 a 4
+2 b 4
+4 a 4
+4 b 4
+5 a 2
+5 b 4
+6 a 2
+6 b 6

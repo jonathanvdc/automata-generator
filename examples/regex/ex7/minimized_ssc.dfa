@@ -1,0 +1,19 @@
+dfa
+start 0
+accepts 1 2
+transitions
+0 b 1
+0 s 3
+0 h 2
+1 b 2
+1 s 4
+1 h 4
+2 b 4
+2 s 4
+2 h 4
+3 b 4
+3 s 4
+3 h 2
+4 b 4
+4 s 4
+4 h 4

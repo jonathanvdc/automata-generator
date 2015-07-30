@@ -1,0 +1,15 @@
+digraph enfa {
+    rankdir = LR;
+    node [shape = circle];
+    __start [style = invis, shape = point];
+    __start -> "0" [ label = "start" ];
+    node [shape = doublecircle]; "1"
+    node [shape = circle];
+    "2" -> "3" [ label = "t" ];
+    "4" -> "5" [ label = "n" ];
+    "3" -> "4" [ label = "&epsilon;" ];
+    "0" -> "2" [ label = "&epsilon;" ];
+    "0" -> "1" [ label = "&epsilon;" ];
+    "5" -> "2" [ label = "&epsilon;" ];
+    "5" -> "1" [ label = "&epsilon;" ];
+}

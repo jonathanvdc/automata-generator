@@ -1,0 +1,13 @@
+enfa
+start 0
+accepts 1
+transitions
+0 a 2
+3 a 4
+5 b 6
+4 -> 5
+7 -> 3
+7 -> 1
+6 -> 3
+6 -> 1
+2 -> 7

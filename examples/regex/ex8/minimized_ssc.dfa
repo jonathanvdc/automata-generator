@@ -1,0 +1,22 @@
+dfa
+start 0
+accepts 1 2 3
+transitions
+0 k 1
+0 d 4
+0 i 3
+1 k 2
+1 d 5
+1 i 3
+2 k 4
+2 d 4
+2 i 4
+4 k 4
+4 d 4
+4 i 4
+3 k 2
+3 d 4
+3 i 3
+5 k 2
+5 d 4
+5 i 3
