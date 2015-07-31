@@ -1,0 +1,1 @@
+(kk)*(q+kq)(k)*q(q)*k(q+k(q)*k)*+(kk)*k

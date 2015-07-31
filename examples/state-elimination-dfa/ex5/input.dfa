@@ -1,0 +1,8 @@
+dfa
+start 0
+accepts 1
+transitions
+0 o 1
+2 o 3
+3 o 0
+1 o 2
