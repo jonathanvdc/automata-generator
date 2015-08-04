@@ -1,5 +1,6 @@
 digraph enfa {
     rankdir = LR;
+    node [shape = circle];
     __start [style = invis, shape = point];
     __start -> "0" [ label = "start" ];
     node [shape = doublecircle]; "1"
@@ -9,4 +10,5 @@ digraph enfa {
     "0" -> "1" [ label = "c" ];
     "1" -> "4" [ label = "c" ];
     "4" -> "2" [ label = "c" ];
+    "3" -> "2" [ label = "c" ];
 }

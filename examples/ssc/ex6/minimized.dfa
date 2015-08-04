@@ -1,7 +1,8 @@
 dfa
 start 0
-accepts 1
+accepts 1 2
 transitions
 0 c 1
-1 c 2
-2 c 0
+1 c 3
+3 c 2
+2 c 1

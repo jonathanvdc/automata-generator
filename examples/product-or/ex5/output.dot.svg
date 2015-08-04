@@ -12,7 +12,7 @@
 <!-- __start -->
 <!-- (0,0) -->
 <g id="node2" class="node"><title>(0,0)</title>
-<ellipse fill="none" stroke="black" cx="92.5475" cy="-41.9475" rx="27.8951" ry="18"/>
+<ellipse fill="none" stroke="black" cx="92.5475" cy="-41.9475" rx="27.8951" ry="27.8951"/>
 <text text-anchor="middle" x="92.5475" y="-38.2475" font-family="Times New Roman,serif" font-size="14.00">(0,0)</text>
 </g>
 <!-- __start&#45;&gt;(0,0) -->
@@ -29,7 +29,7 @@
 </g>
 <!-- (0,0)&#45;&gt;(2,1) -->
 <g id="edge2" class="edge"><title>(0,0)&#45;&gt;(2,1)</title>
-<path fill="none" stroke="black" d="M117.245,-50.7002C124.074,-53.136 131.554,-55.7221 138.495,-57.9475 143.726,-59.6247 149.259,-61.3112 154.729,-62.9274"/>
+<path fill="none" stroke="black" d="M119.123,-51.3678C125.429,-53.6032 132.185,-55.9244 138.495,-57.9475 143.726,-59.6247 149.259,-61.3112 154.729,-62.9274"/>
 <polygon fill="black" stroke="black" points="153.851,-66.3169 164.43,-65.7436 155.803,-59.5944 153.851,-66.3169"/>
 <text text-anchor="middle" x="141.995" y="-63.7475" font-family="Times New Roman,serif" font-size="14.00">e</text>
 </g>
@@ -40,14 +40,14 @@
 </g>
 <!-- (0,0)&#45;&gt;(3,2) -->
 <g id="edge3" class="edge"><title>(0,0)&#45;&gt;(3,2)</title>
-<path fill="none" stroke="black" d="M119.608,-36.7145C125.778,-35.6408 132.351,-34.6311 138.495,-33.9475 225.02,-24.3211 247.262,-25.4613 334.285,-27.9475 344.954,-28.2523 356.528,-28.8182 367.132,-29.4302"/>
+<path fill="none" stroke="black" d="M120.083,-36.632C126.115,-35.5893 132.508,-34.6136 138.495,-33.9475 225.02,-24.3211 247.262,-25.4613 334.285,-27.9475 344.954,-28.2523 356.528,-28.8182 367.132,-29.4302"/>
 <polygon fill="black" stroke="black" points="367.15,-32.9377 377.343,-30.0498 367.574,-25.9505 367.15,-32.9377"/>
 <text text-anchor="middle" x="248.89" y="-30.7475" font-family="Times New Roman,serif" font-size="14.00">x</text>
 </g>
 <!-- (2,1)&#45;&gt;(0,0) -->
 <g id="edge4" class="edge"><title>(2,1)&#45;&gt;(0,0)</title>
-<path fill="none" stroke="black" d="M171.184,-52.8734C163.542,-47.2288 154.647,-41.8829 145.495,-38.9475 140.463,-37.3335 135.018,-36.6137 129.611,-36.4639"/>
-<polygon fill="black" stroke="black" points="129.264,-32.9732 119.381,-36.7928 129.489,-39.9696 129.264,-32.9732"/>
+<path fill="none" stroke="black" d="M171.184,-52.8734C163.542,-47.2288 154.647,-41.8829 145.495,-38.9475 140.745,-37.424 135.627,-36.6973 130.522,-36.4946"/>
+<polygon fill="black" stroke="black" points="130.098,-33.0031 120.179,-36.7269 130.255,-40.0013 130.098,-33.0031"/>
 <text text-anchor="middle" x="141.995" y="-42.7475" font-family="Times New Roman,serif" font-size="14.00">e</text>
 </g>
 <!-- (1,0) -->

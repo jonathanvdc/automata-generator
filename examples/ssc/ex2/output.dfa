@@ -1,6 +1,6 @@
 dfa
 start {0}
-accepts {0,1}
+accepts {0,1} {3}
 transitions
 {0} t {2}
 {0} h {}

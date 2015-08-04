@@ -1,15 +1,18 @@
 digraph dfa {
     rankdir = LR;
+    node [shape = circle];
     __start [style = invis, shape = point];
     __start -> "0" [ label = "start" ];
-    node [shape = doublecircle]; "1"
+    node [shape = doublecircle]; "1" "2"
     node [shape = circle];
-    "0" -> "2" [ label = "t" ];
-    "0" -> "3" [ label = "h" ];
-    "2" -> "1" [ label = "t" ];
-    "2" -> "3" [ label = "h" ];
-    "1" -> "2" [ label = "t" ];
-    "1" -> "3" [ label = "h" ];
-    "3" -> "3" [ label = "t" ];
-    "3" -> "3" [ label = "h" ];
+    "0" -> "3" [ label = "t" ];
+    "0" -> "4" [ label = "h" ];
+    "3" -> "1" [ label = "t" ];
+    "3" -> "4" [ label = "h" ];
+    "1" -> "3" [ label = "t" ];
+    "1" -> "2" [ label = "h" ];
+    "4" -> "4" [ label = "t" ];
+    "4" -> "4" [ label = "h" ];
+    "2" -> "4" [ label = "t" ];
+    "2" -> "4" [ label = "h" ];
 }
